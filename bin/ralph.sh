@@ -232,6 +232,7 @@ next_task=""
 iteration_start=0
 iteration_duration=0
 output_file=""
+last_output_file=""
 exit_code=0
 summary=""
 error_msg=""
@@ -258,8 +259,20 @@ while true; do
     fi
 
     if [[ "$next_task" == "COMPLETE" || -z "$next_task" ]]; then
-        show_status "All tasks complete!" "success"
-        break
+        # All plans done - verify completion gate before exiting
+        # Use last_output_file if available from previous iteration
+        if check_completion "${last_output_file:-}"; then
+            show_status "All tasks complete!" "success"
+            loop_duration=$(($(date +%s) - START_TIME))
+            exit_with_status "COMPLETED" "All tests pass and all plans done" "${next_task:-COMPLETE}" "$iteration" "$loop_duration"
+            exit $EXIT_COMPLETED
+        else
+            # Plans done but completion gate failed
+            show_status "All plans marked done but completion check failed - investigate" "warning"
+            loop_duration=$(($(date +%s) - START_TIME))
+            exit_with_status "COMPLETED" "All plans done (completion check inconclusive)" "${next_task:-COMPLETE}" "$iteration" "$loop_duration"
+            exit $EXIT_COMPLETED
+        fi
     fi
 
     # Record iteration start time
@@ -305,8 +318,10 @@ while true; do
         mark_checkpoint
         exit_critical_section
 
-        # Clean up temp file
-        rm -f "$output_file" 2>/dev/null
+        # Save output file reference for completion check before cleanup
+        # Clean up previous last_output_file and save current one
+        rm -f "$last_output_file" 2>/dev/null
+        last_output_file="$output_file"
 
     else
         # Check if this is a Claude crash (abnormal exit)
@@ -377,10 +392,17 @@ done
 # Post-Loop Cleanup
 # =============================================================================
 
+# Clean up any remaining temp file
+rm -f "$last_output_file" 2>/dev/null
+
 # Calculate duration
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
 
-# Exit with COMPLETED status
-exit_with_status "COMPLETED" "All tasks complete" "$next_task" "$iteration" "$DURATION"
+# Exit with COMPLETED status (fallback - normally exits in completion check above)
+if check_completion "${last_output_file:-}"; then
+    exit_with_status "COMPLETED" "All tests pass and all plans done" "$next_task" "$iteration" "$DURATION"
+else
+    exit_with_status "COMPLETED" "All plans done (completion check inconclusive)" "$next_task" "$iteration" "$DURATION"
+fi
 exit $EXIT_COMPLETED
