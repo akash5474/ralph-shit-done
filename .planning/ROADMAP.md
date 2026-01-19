@@ -84,7 +84,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Atomic commit integration (checkpoint.sh library, startup validation, commit after success)
+- [x] 04-01-PLAN.md — Atomic commit integration (checkpoint.sh library, startup validation, commit after success)
 - [ ] 04-02-PLAN.md — History recovery (extract last task from git, validate STATE.md vs git history)
 
 ### Phase 5: Exit Conditions
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 1. Safety Foundation | 2/2 | Complete | 2026-01-19 |
 | 2. State Extensions | 2/2 | Complete | 2026-01-19 |
 | 3. Outer Loop Core | 3/3 | Complete | 2026-01-19 |
-| 4. Git Checkpointing | 0/2 | Ready | - |
+| 4. Git Checkpointing | 1/2 | In Progress | - |
 | 5. Exit Conditions | 0/3 | Not started | - |
 | 6. Circuit Breaker & Recovery | 0/2 | Not started | - |
 | 7. Learnings Propagation | 0/2 | Not started | - |
