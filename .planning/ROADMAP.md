@@ -32,13 +32,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. User can configure a maximum iteration limit before starting autonomous execution
   2. Errors surface immediately to the outer loop instead of continuing silently
-  3. CONFIG.json stores budget configuration that the outer loop respects
+  3. .planning/.ralph-config stores budget configuration that the outer loop respects
   4. Outer loop aborts when iteration cap is reached, preserving progress made so far
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Budget configuration infrastructure
-- [ ] 01-02: Fail-fast error handling patterns
+- [ ] 01-01-PLAN.md — Budget configuration infrastructure (prompting, persistence, display)
+- [ ] 01-02-PLAN.md — Fail-fast error handling patterns (retry, checkpoint, rollback)
 
 ### Phase 2: State Extensions
 **Goal**: Track iteration state and show progress across autonomous execution
@@ -191,7 +191,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Safety Foundation | 0/2 | Not started | - |
+| 1. Safety Foundation | 0/2 | Planned | - |
 | 2. State Extensions | 0/2 | Not started | - |
 | 3. Outer Loop Core | 0/3 | Not started | - |
 | 4. Git Checkpointing | 0/2 | Not started | - |
