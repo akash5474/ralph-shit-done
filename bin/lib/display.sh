@@ -5,14 +5,22 @@
 # Provides terminal progress display for the ralph loop.
 # Functions: format_duration, show_progress, show_status
 
-# Color codes for terminal output
-# Using \e format for compatibility with both Unix and Windows Git Bash
-RED='\e[31m'
-GREEN='\e[32m'
-YELLOW='\e[33m'
-CYAN='\e[36m'
-BOLD='\e[1m'
-RESET='\e[0m'
+# Respect NO_COLOR standard (https://no-color.org/)
+if [[ -n "${NO_COLOR:-}" ]]; then
+    RED=''
+    GREEN=''
+    YELLOW=''
+    CYAN=''
+    BOLD=''
+    RESET=''
+else
+    RED='\e[31m'
+    GREEN='\e[32m'
+    YELLOW='\e[33m'
+    CYAN='\e[36m'
+    BOLD='\e[1m'
+    RESET='\e[0m'
+fi
 
 # format_duration - Convert seconds to "Nh NNm" format
 # Args: seconds
