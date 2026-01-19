@@ -217,3 +217,54 @@ exit_with_status() {
 
     return $exit_code
 }
+
+# =============================================================================
+# Test Result Parsing Functions
+# =============================================================================
+
+# parse_test_results - Parse test output for pass/fail patterns
+# Args: output_file (path to file containing test output, optional)
+# Returns: 0 if tests pass, 1 if tests fail, 2 if unknown
+# Outputs: TESTS_PASS, TESTS_FAIL:n, or TESTS_UNKNOWN to stdout
+#
+# This function parses output from test frameworks to detect pass/fail patterns.
+# It looks for common patterns used by various test frameworks (Jest, pytest, Go, etc.)
+parse_test_results() {
+    local output_file="${1:-}"
+
+    # If no output file, we can't determine test status
+    # This is OK - check_completion will handle it
+    if [[ -z "$output_file" || ! -f "$output_file" ]]; then
+        echo "TESTS_UNKNOWN"
+        return 2
+    fi
+
+    # Count failures (various frameworks)
+    local fail_count
+    fail_count=$(grep -ciE '(FAIL|ERROR|FAILED)' "$output_file" 2>/dev/null || echo "0")
+
+    # Count passes (various frameworks)
+    local pass_count
+    pass_count=$(grep -ciE '(PASS|OK|PASSED|SUCCESS)' "$output_file" 2>/dev/null || echo "0")
+
+    if [[ $fail_count -eq 0 && $pass_count -gt 0 ]]; then
+        echo "TESTS_PASS"
+        return 0
+    elif [[ $fail_count -gt 0 ]]; then
+        echo "TESTS_FAIL:$fail_count"
+        return 1
+    else
+        echo "TESTS_UNKNOWN"
+        return 2  # Could not determine
+    fi
+}
+
+# check_tests_pass - Helper to check if tests pass
+# Args: output_file (path to file containing test output, optional)
+# Returns: 0 if tests pass, 1 otherwise
+check_tests_pass() {
+    local output_file="${1:-}"
+    local result
+    result=$(parse_test_results "$output_file")
+    [[ "$result" == "TESTS_PASS" ]]
+}
