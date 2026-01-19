@@ -25,6 +25,7 @@ source "${SCRIPT_DIR}/lib/display.sh"
 source "${SCRIPT_DIR}/lib/failfast.sh"
 source "${SCRIPT_DIR}/lib/parse.sh"
 source "${SCRIPT_DIR}/lib/invoke.sh"
+source "${SCRIPT_DIR}/lib/checkpoint.sh"
 
 # Log file configuration
 LOG_FILE="${LOG_FILE:-.planning/ralph.log}"
@@ -202,6 +203,12 @@ show_startup_summary() {
 }
 
 show_startup_summary
+
+# Validate git state before entering main loop
+if ! validate_git_state; then
+    echo -e "${RED}Cannot proceed without clean git state${RESET}"
+    exit 1
+fi
 
 # Mark checkpoint for potential rollback
 mark_checkpoint
