@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Outer Loop Core** - Bash script that spawns fresh Claude instances with retry logic
 - [x] **Phase 4: Git Checkpointing** - Atomic commits as iteration boundaries for progress persistence
 - [x] **Phase 5: Exit Conditions** - Test-based completion, stuck detection, and dual-exit gate
-- [ ] **Phase 6: Circuit Breaker & Recovery** - Pause after consecutive failures, analyze stuck state
+- [x] **Phase 6: Circuit Breaker & Recovery** - Pause after consecutive failures, analyze stuck state
 - [ ] **Phase 7: Learnings Propagation** - Write discovered patterns to AGENTS.md across iterations
 - [ ] **Phase 8: Upfront Planning** - Generate all PLAN.md files before autonomous execution begins
 - [ ] **Phase 9: Mode Selection & Base Commands** - Interactive vs Lazy mode selection at startup
@@ -126,11 +126,11 @@ Plans:
   2. Future iterations read AGENTS.md and benefit from learned patterns
   3. Learnings accumulate without causing context bloat
   4. User can review and edit accumulated learnings
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 07-01: Learning extraction from iteration outcomes
-- [ ] 07-02: AGENTS.md integration and consumption
+- [ ] 07-01-PLAN.md — Learning extraction library (learnings.sh with init, get, append, extract, prune)
+- [ ] 07-02-PLAN.md — AGENTS.md integration into invoke and ralph loop
 
 ### Phase 8: Upfront Planning
 **Goal**: Generate all PLAN.md files for all phases before autonomous execution
