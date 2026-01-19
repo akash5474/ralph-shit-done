@@ -111,11 +111,11 @@ Plans:
   2. Stuck detection analyzes WHY the loop is stuck before retrying
   3. Alternative approaches are tried before giving up on a task
   4. User can review failure analysis and resume or abort
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: Circuit breaker pattern implementation
-- [ ] 06-02: Stuck analysis and alternative approach selection
+- [ ] 06-01-PLAN.md — Circuit breaker pattern with cross-task failure tracking and pause menu
+- [ ] 06-02-PLAN.md — Stuck analysis and alternative approach suggestions
 
 ### Phase 7: Learnings Propagation
 **Goal**: Share discovered patterns across iterations via AGENTS.md
