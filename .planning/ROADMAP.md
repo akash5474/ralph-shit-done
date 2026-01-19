@@ -96,12 +96,11 @@ Plans:
   2. Loop exits when same task fails 3+ times consecutively (stuck detection)
   3. Dual-exit gate requires BOTH completion markers AND explicit exit signal
   4. Exit reason is clearly logged in STATE.md for user review
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: Test-based completion detection
-- [ ] 05-02: Stuck loop detection and exit
-- [ ] 05-03: Dual-exit gate implementation
+- [ ] 05-01-PLAN.md — Exit conditions library with stuck detection, interrupt handling, exit status logging
+- [ ] 05-02-PLAN.md — Completion detection and dual-exit gate implementation
 
 ### Phase 6: Circuit Breaker & Recovery
 **Goal**: Intelligently handle repeated failures without burning tokens
@@ -195,7 +194,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 2. State Extensions | 2/2 | Complete | 2026-01-19 |
 | 3. Outer Loop Core | 3/3 | Complete | 2026-01-19 |
 | 4. Git Checkpointing | 2/2 | Complete | 2026-01-19 |
-| 5. Exit Conditions | 0/3 | Not started | - |
+| 5. Exit Conditions | 0/2 | Not started | - |
 | 6. Circuit Breaker & Recovery | 0/2 | Not started | - |
 | 7. Learnings Propagation | 0/2 | Not started | - |
 | 8. Upfront Planning | 0/4 | Not started | - |
@@ -204,4 +203,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 ---
 *Roadmap created: 2026-01-19*
-*Depth: Comprehensive (10 phases, 26 planned plans)*
+*Depth: Comprehensive (10 phases, 25 planned plans)*
