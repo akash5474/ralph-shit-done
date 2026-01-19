@@ -150,3 +150,32 @@ check_limits() {
 
     return 0
 }
+
+# handle_task_failure - Called when task fails after retries
+# Args: task_name
+# Returns: 1 (caller should exit)
+handle_task_failure() {
+    local task_name="$1"
+
+    echo ""
+    echo -e "${RED}${BOLD}FATAL: Task '$task_name' failed after $MAX_RETRIES attempts${RESET}"
+    echo -e "${RED}Stopping execution to prevent further token burn${RESET}"
+    echo ""
+
+    rollback_to_checkpoint
+
+    return 1
+}
+
+# handle_limit_reached - Called when budget exhausted
+# Args: none (reads LIMIT_REASON global)
+# Returns: 1 (caller should exit)
+handle_limit_reached() {
+    echo ""
+    echo -e "${RED}${BOLD}LIMIT REACHED: $LIMIT_REASON${RESET}"
+    echo ""
+
+    rollback_to_checkpoint
+
+    return 1
+}
