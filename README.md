@@ -1,6 +1,6 @@
 <div align="center">
 
-# GET SHIT DONE
+# GET SHIT DONE 1
 
 **A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code by TÂCHES.**
 
