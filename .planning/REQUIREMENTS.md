@@ -34,9 +34,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### State & Persistence
 
-- [ ] **STATE-01**: State file persistence (STATE.md tracks iteration count, current phase, outcomes)
+- [x] **STATE-01**: State file persistence (STATE.md tracks iteration count, current phase, outcomes)
 - [ ] **STATE-02**: Git commits as checkpoints (atomic commit each iteration)
-- [ ] **STATE-03**: Progress indicator updated each iteration
+- [x] **STATE-03**: Progress indicator updated each iteration
 - [ ] **STATE-04**: Learnings propagation (discovered patterns written to AGENTS.md or equivalent)
 
 ### Commands
@@ -85,8 +85,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SAFE-01 | Phase 1: Safety Foundation | Complete |
 | SAFE-02 | Phase 1: Safety Foundation | Complete |
-| STATE-01 | Phase 2: State Extensions | Pending |
-| STATE-03 | Phase 2: State Extensions | Pending |
+| STATE-01 | Phase 2: State Extensions | Complete |
+| STATE-03 | Phase 2: State Extensions | Complete |
 | LOOP-01 | Phase 3: Outer Loop Core | Pending |
 | LOOP-02 | Phase 3: Outer Loop Core | Pending |
 | STATE-02 | Phase 4: Git Checkpointing | Pending |
@@ -113,4 +113,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 1 completion*
+*Last updated: 2026-01-19 after Phase 2 completion*
