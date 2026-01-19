@@ -138,6 +138,12 @@ handle_circuit_breaker_pause() {
     echo -e "${EXIT_YELLOW}Multiple tasks failing - systemic issue suspected${EXIT_RESET}"
     echo ""
 
+    # Show stuck analysis if recovery.sh is sourced
+    if type generate_stuck_analysis &>/dev/null; then
+        generate_stuck_analysis
+        echo ""
+    fi
+
     # Check if interactive mode
     if [[ ! -t 0 ]]; then
         # Non-interactive: fail fast
