@@ -49,11 +49,11 @@ Plans:
   2. Progress indicator updates after each iteration completes
   3. Fresh Claude instances can read STATE.md and know exactly where to resume
   4. Iteration history persists between sessions (survives crashes)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: STATE.md schema extensions for lazy mode
-- [ ] 02-02: Progress indicator implementation
+- [ ] 02-01-PLAN.md — STATE.md schema extensions and state.sh update library
+- [ ] 02-02-PLAN.md — Progress bar generation and history rolling/archiving
 
 ### Phase 3: Outer Loop Core
 **Goal**: Execute a bash-based retry loop that spawns fresh Claude instances
