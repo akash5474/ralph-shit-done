@@ -26,6 +26,7 @@ source "${SCRIPT_DIR}/lib/failfast.sh"
 source "${SCRIPT_DIR}/lib/parse.sh"
 source "${SCRIPT_DIR}/lib/invoke.sh"
 source "${SCRIPT_DIR}/lib/checkpoint.sh"
+source "${SCRIPT_DIR}/lib/exit.sh"
 
 # Log file configuration
 LOG_FILE="${LOG_FILE:-.planning/ralph.log}"
@@ -219,6 +220,9 @@ fi
 # Mark checkpoint for potential rollback
 mark_checkpoint
 
+# Set up SIGINT (Ctrl+C) handler for graceful interrupt
+trap 'handle_interrupt' INT
+
 # =============================================================================
 # Main Loop
 # =============================================================================
@@ -240,8 +244,9 @@ while true; do
 
     # Check budget limits
     if ! check_limits "$iteration"; then
-        handle_limit_reached
-        exit 1
+        loop_duration=$(($(date +%s) - START_TIME))
+        exit_with_status "ABORTED" "Iteration cap reached" "$next_task" "$iteration" "$loop_duration"
+        exit $EXIT_ABORTED
     fi
 
     # Get next task
@@ -282,17 +287,23 @@ while true; do
         summary=$(parse_claude_output "$output_file")
         show_status "[$iteration] Completed: $next_task (${iteration_duration}s)" "success"
 
+        # Reset stuck detection on success
+        reset_failure_tracking
+
         # Update state
         handle_iteration_success "$iteration" "$next_task" "$summary" "$iteration_duration"
 
-        # Create checkpoint commit
+        # Create checkpoint commit (protected from interrupt)
+        enter_critical_section
         if ! create_checkpoint_commit "$next_task" "$summary"; then
+            exit_critical_section
             echo -e "${RED}FATAL: Cannot continue without successful checkpoint${RESET}"
             exit 1
         fi
 
         # Mark checkpoint after successful iteration
         mark_checkpoint
+        exit_critical_section
 
         # Clean up temp file
         rm -f "$output_file" 2>/dev/null
@@ -312,6 +323,13 @@ while true; do
 
         # Record failure in state
         handle_iteration_failure_state "$iteration" "$next_task" "$error_msg" "$iteration_duration"
+
+        # Check if stuck on same task
+        if check_stuck "$next_task"; then
+            loop_duration=$(($(date +%s) - START_TIME))
+            exit_with_status "STUCK" "Same task failed $STUCK_THRESHOLD times" "$next_task" "$iteration" "$loop_duration"
+            exit $EXIT_STUCK
+        fi
 
         # Present user with Retry/Skip/Abort choice
         handle_iteration_failure "$next_task" "$error_msg"
@@ -340,10 +358,18 @@ while true; do
                 ;;
             2)  # Abort
                 add_iteration_entry "$iteration" "ABORTED" "$next_task: User aborted"
-                show_status "Aborted by user" "warning"
-                exit 1
+                loop_duration=$(($(date +%s) - START_TIME))
+                exit_with_status "ABORTED" "User aborted" "$next_task" "$iteration" "$loop_duration"
+                exit $EXIT_ABORTED
                 ;;
         esac
+    fi
+
+    # Check for deferred interrupt at end of iteration (safe point)
+    if check_interrupted; then
+        loop_duration=$(($(date +%s) - START_TIME))
+        exit_with_status "INTERRUPTED" "User interrupt" "$next_task" "$iteration" "$loop_duration"
+        exit $EXIT_INTERRUPTED
     fi
 done
 
@@ -354,10 +380,7 @@ done
 # Calculate duration
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - START_TIME))
-DURATION_FMT=$(format_duration "$DURATION")
 
-echo ""
-echo -e "${BOLD}${GREEN}=== Ralph Complete ===${RESET}"
-echo -e "Iterations: $iteration"
-echo -e "Duration: $DURATION_FMT"
-echo ""
+# Exit with COMPLETED status
+exit_with_status "COMPLETED" "All tasks complete" "$next_task" "$iteration" "$DURATION"
+exit $EXIT_COMPLETED
