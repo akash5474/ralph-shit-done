@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Circuit Breaker & Recovery** - Pause after consecutive failures, analyze stuck state
 - [x] **Phase 7: Learnings Propagation** - Write discovered patterns to AGENTS.md across iterations
 - [x] **Phase 8: Upfront Planning** - Generate all PLAN.md files before autonomous execution begins
-- [ ] **Phase 9: Mode Selection & Base Commands** - Interactive vs Lazy mode selection at startup
+- [x] **Phase 9: Mode Selection & Base Commands** - Interactive vs Lazy mode selection at startup
 - [ ] **Phase 10: Execution Commands** - Full command set for autonomous milestone execution
 
 ## Phase Details
@@ -160,8 +160,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Mode infrastructure (mode.sh library, budget.sh extension, lazy-mode.md command)
-- [ ] 09-02-PLAN.md — Command updates (help.md mode labels, progress.md mode display, mode gating)
+- [x] 09-01-PLAN.md — Mode infrastructure (mode.sh library, budget.sh extension, lazy-mode.md command)
+- [x] 09-02-PLAN.md — Command updates (help.md mode labels, progress.md mode display, mode gating)
 
 ### Phase 10: Execution Commands
 **Goal**: Complete user-facing command set for autonomous execution
@@ -196,7 +196,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Circuit Breaker & Recovery | 2/2 | Complete | 2026-01-19 |
 | 7. Learnings Propagation | 2/2 | Complete | 2026-01-19 |
 | 8. Upfront Planning | 2/2 | Complete | 2026-01-19 |
-| 9. Mode Selection & Base Commands | 0/2 | Not started | - |
+| 9. Mode Selection & Base Commands | 2/2 | Complete | 2026-01-20 |
 | 10. Execution Commands | 0/4 | Not started | - |
 
 ---
