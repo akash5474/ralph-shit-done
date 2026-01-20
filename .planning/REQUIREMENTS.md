@@ -64,6 +64,11 @@ Deferred to future release. Tracked but not in current roadmap.
 - **REC-03**: Parallel phase execution (independent phases run simultaneously)
 - **REC-04**: Failure learnings propagation (extract "what went wrong" from failed attempts, feed to retry with structured context so next attempt has richer understanding of the failure)
 
+### Execution Isolation
+
+- **EXEC-01**: Auto-launch terminal for ralph.sh (autopilot opens new terminal window, runs ralph.sh as independent process, prevents Claude from "helpfully" executing plans directly instead of delegating)
+- **EXEC-02**: Cross-platform terminal detection (Windows cmd/PowerShell/Git Bash, macOS Terminal, Linux gnome-terminal/xterm/etc.)
+
 ## Out of Scope
 
 Explicitly excluded. Documented to prevent scope creep.
