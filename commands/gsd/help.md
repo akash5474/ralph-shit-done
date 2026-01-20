@@ -25,6 +25,17 @@ Output ONLY the reference content below. Do NOT add:
 2. `/gsd:plan-phase 1` - Create detailed plan for first phase
 3. `/gsd:execute-phase 1` - Execute the phase
 
+## Mode
+
+GSD has two execution modes. Toggle with `/gsd:lazy-mode`.
+
+| Mode | Workflow | Commands |
+|------|----------|----------|
+| Interactive | Plan one phase, execute, repeat | plan-phase, execute-phase |
+| Lazy | Plan all upfront, run unattended | plan-milestone-all, run-milestone |
+
+Check current mode with `/gsd:progress` or `/gsd:lazy-mode`.
+
 ## Staying Updated
 
 GSD evolves fast. Check for updates periodically:
@@ -78,7 +89,7 @@ Usage: `/gsd:map-codebase`
 
 ### Phase Planning
 
-**`/gsd:discuss-phase <number>`**
+**`/gsd:discuss-phase <number>`** (interactive)
 Help articulate your vision for a phase before planning.
 
 - Captures how you imagine this phase working
@@ -87,7 +98,7 @@ Help articulate your vision for a phase before planning.
 
 Usage: `/gsd:discuss-phase 2`
 
-**`/gsd:research-phase <number>`**
+**`/gsd:research-phase <number>`** (interactive)
 Comprehensive ecosystem research for niche/complex domains.
 
 - Discovers standard stack, architecture patterns, pitfalls
@@ -97,7 +108,7 @@ Comprehensive ecosystem research for niche/complex domains.
 
 Usage: `/gsd:research-phase 3`
 
-**`/gsd:list-phase-assumptions <number>`**
+**`/gsd:list-phase-assumptions <number>`** (interactive)
 See what Claude is planning to do before it starts.
 
 - Shows Claude's intended approach for a phase
@@ -106,7 +117,7 @@ See what Claude is planning to do before it starts.
 
 Usage: `/gsd:list-phase-assumptions 3`
 
-**`/gsd:plan-phase <number>`**
+**`/gsd:plan-phase <number>`** (interactive)
 Create detailed execution plan for a specific phase.
 
 - Generates `.planning/phases/XX-phase-name/XX-YY-PLAN.md`
@@ -119,7 +130,7 @@ Result: Creates `.planning/phases/01-foundation/01-01-PLAN.md`
 
 ### Execution
 
-**`/gsd:execute-phase <phase-number>`**
+**`/gsd:execute-phase <phase-number>`** (interactive)
 Execute all plans in a phase.
 
 - Groups plans by wave (from frontmatter), executes waves sequentially
@@ -128,6 +139,17 @@ Execute all plans in a phase.
 - Updates REQUIREMENTS.md, ROADMAP.md, STATE.md
 
 Usage: `/gsd:execute-phase 5`
+
+### Lazy Mode Execution
+
+**`/gsd:plan-milestone-all`** (lazy)
+Generate all phase plans for entire milestone before autonomous execution.
+
+**`/gsd:ralph`** (lazy)
+Configure retry loop settings (max iterations, timeout).
+
+**`/gsd:run-milestone`** (lazy)
+Start autonomous execution. Runs until completion or cap reached.
 
 ### Roadmap Management
 
@@ -306,32 +328,41 @@ Usage: `/gsd:whats-new`
 
 ## Workflow Modes
 
-Set during `/gsd:new-project`:
-
 **Interactive Mode**
+- Plan one phase at a time with `/gsd:plan-phase`
+- Execute with supervision via `/gsd:execute-phase`
+- Iterate: plan -> execute -> plan -> execute
+- Human stays present during execution
 
-- Confirms each major decision
-- Pauses at checkpoints for approval
-- More guidance throughout
+**Lazy Mode**
+- Plan ALL phases upfront with `/gsd:plan-milestone-all`
+- Execute autonomously with `/gsd:run-milestone`
+- "Fire and forget" - walk away after planning
+- Human returns to completed work
 
-**YOLO Mode**
-
-- Auto-approves most decisions
-- Executes plans without confirmation
-- Only stops for critical checkpoints
-
-Change anytime by editing `.planning/config.json`
+Toggle between modes: `/gsd:lazy-mode`
 
 ## Common Workflows
 
-**Starting a new project:**
+**Interactive: Starting a new project:**
 
 ```
-/gsd:new-project        # Unified flow: questioning → research → requirements → roadmap
+/gsd:new-project
 /clear
-/gsd:plan-phase 1       # Create plans for first phase
+/gsd:plan-phase 1
 /clear
-/gsd:execute-phase 1    # Execute all plans in phase
+/gsd:execute-phase 1
+```
+
+**Lazy: Fire and forget:**
+
+```
+/gsd:new-project
+/gsd:lazy-mode              # Enable lazy mode
+/gsd:plan-milestone-all     # Plan all phases
+/gsd:ralph                  # Configure loop settings
+/gsd:run-milestone          # Start autonomous execution
+# ... walk away ...
 ```
 
 **Resuming work after a break:**
