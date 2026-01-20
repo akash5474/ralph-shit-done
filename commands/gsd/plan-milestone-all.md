@@ -216,6 +216,127 @@ After all phases planned:
 set_planning_session "$session_id" "completed"
 ```
 
+## 7. Present Summary for Review
+
+Display all generated plans:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD > ALL PLANS GENERATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Session: {session_id}
+Total plans: {count}
+
+| Phase | Name | Plans | Status |
+|-------|------|-------|--------|
+| 1 | Safety Foundation | 2 | complete |
+| 2 | State Extensions | 2 | complete |
+...
+| 10 | Execution Commands | 4 | complete |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Review commands:
+  cat .planning/phases/08-*/*-PLAN.md    # View Phase 8 plans
+  cat .planning/phases/*/*-PLAN.md       # View all plans
+
+Ready to proceed with execution? Type "proceed" or describe changes needed.
+```
+
+## 8. Refinement Loop
+
+**While user has not typed "proceed":**
+
+Parse user input for refinement requests:
+
+**Pattern: "Plan {XX-NN} needs {change}"**
+- Extract plan_id from input
+- Check for dependents: `get_dependent_plans "$plan_id"`
+- If has dependents, warn: "Plans {list} depend on {plan_id}. Continue? (y/n)"
+- Spawn gsd-planner in revision mode:
+
+```markdown
+<revision_context>
+
+**Phase:** {extracted_phase}
+**Mode:** revision
+**Plan to revise:** {plan_id}
+
+**User feedback:**
+{user_message}
+
+**Existing plan:**
+@.planning/phases/{phase_dir}/{plan_id}-PLAN.md
+
+**Dependent plans (if any):**
+{list_of_dependent_plans}
+
+</revision_context>
+
+<instructions>
+Read the existing PLAN.md. Make targeted updates based on user feedback.
+Do NOT replan from scratch unless fundamental changes requested.
+Return what changed.
+</instructions>
+```
+
+```
+Task(
+  prompt=revision_prompt,
+  subagent_type="gsd-planner",
+  description="Revise plan {plan_id}"
+)
+```
+
+After revision:
+- Display: "Plan {plan_id} updated. Changes: {summary}"
+- Commit revision: `git add ... && git commit -m "fix(XX): revise plan based on feedback"`
+- Re-display summary (step 7)
+
+**Pattern: "Phase {N} {needs redesign/is wrong/etc}"**
+- Suggest: "For phase redesign, consider running `/gsd:plan-phase {N}` directly."
+- Or offer to delete phase plans and regenerate
+
+**Pattern: "proceed" or "done" or "ready"**
+- Exit refinement loop
+- Continue to step 9
+
+## 9. Present Completion
+
+Display final status:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSD > PLANNING COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All {total_plans} plans ready for execution.
+
+Session: {session_id}
+
+---
+
+## Next Steps
+
+**Configure autonomous execution:**
+/gsd:ralph                    # Set iteration limits, timeouts
+
+**Start autonomous execution:**
+/gsd:run-milestone            # Fire and forget
+
+/clear first -> fresh context window
+
+---
+
+**Also available:**
+- /gsd:plan-phase {N}         - Replan specific phase
+- /gsd:execute-phase {N}      - Execute single phase interactively
+- cat .planning/phases/*/*-PLAN.md  - Review all plans
+
+---
+```
+
 </process>
 
 <success_criteria>
