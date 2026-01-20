@@ -46,6 +46,7 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
 - Read `.planning/STATE.md` for living memory (position, decisions, issues)
 - Read `.planning/ROADMAP.md` for phase structure and objectives
 - Read `.planning/PROJECT.md` for current state (What This Is, Core Value, Requirements)
+- Read `.planning/.ralph-config` for GSD_MODE (if exists)
   </step>
 
 <step name="recent">
@@ -74,6 +75,9 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/gsd:new-project`.
 # [Project Name]
 
 **Progress:** [████████░░] 8/10 plans complete
+
+## Mode
+[Interactive | Lazy | Not Set] — `/gsd:lazy-mode` to change
 
 ## Recent Work
 - [Phase X, Plan Y]: [what was accomplished - 1 line]
@@ -166,8 +170,30 @@ Read its `<objective>` section.
 **Route B: Phase needs planning**
 
 Check if `{phase}-CONTEXT.md` exists in phase directory.
+Check GSD_MODE from .ralph-config (read in load step).
 
-**If CONTEXT.md exists:**
+**If mode is lazy:**
+
+```
+---
+
+## ▶ Next Up
+
+**Phase {N}: {Name}** — {Goal from ROADMAP.md}
+
+`/gsd:plan-milestone-all` — plan all phases at once
+
+<sub>`/clear` first → fresh context window</sub>
+
+---
+
+**Also available:**
+- `/gsd:lazy-mode` — switch to Interactive mode for per-phase planning
+
+---
+```
+
+**If mode is interactive or not set, and CONTEXT.md exists:**
 
 ```
 ---
@@ -184,7 +210,7 @@ Check if `{phase}-CONTEXT.md` exists in phase directory.
 ---
 ```
 
-**If CONTEXT.md does NOT exist:**
+**If mode is interactive or not set, and CONTEXT.md does NOT exist:**
 
 ```
 ---
