@@ -32,7 +32,7 @@ GSD has two execution modes. Toggle with `/gsd:lazy-mode`.
 | Mode | Workflow | Commands |
 |------|----------|----------|
 | Interactive | Plan one phase, execute, repeat | plan-phase, execute-phase |
-| Lazy | Plan all upfront, run unattended | plan-milestone-all, run-milestone |
+| Lazy | Plan all upfront, run unattended | plan-milestone-all, autopilot |
 
 Check current mode with `/gsd:progress` or `/gsd:lazy-mode`.
 
@@ -145,11 +145,14 @@ Usage: `/gsd:execute-phase 5`
 **`/gsd:plan-milestone-all`** (lazy)
 Generate all phase plans for entire milestone before autonomous execution.
 
-**`/gsd:ralph`** (lazy)
-Configure retry loop settings (max iterations, timeout).
+**`/gsd:autopilot`** (lazy)
+Start autonomous milestone execution. Combines settings configuration, plan detection, and execution into single command.
 
-**`/gsd:run-milestone`** (lazy)
-Start autonomous execution. Runs until completion or cap reached.
+- Prompts for settings (max iterations, timeout, thresholds)
+- Detects existing plans or triggers planning
+- Detects incomplete runs and offers resume
+- Executes until completion or interruption
+- Handles Ctrl+C gracefully with resume info
 
 ### Roadmap Management
 
@@ -336,7 +339,7 @@ Usage: `/gsd:whats-new`
 
 **Lazy Mode**
 - Plan ALL phases upfront with `/gsd:plan-milestone-all`
-- Execute autonomously with `/gsd:run-milestone`
+- Execute autonomously with `/gsd:autopilot`
 - "Fire and forget" - walk away after planning
 - Human returns to completed work
 
@@ -359,10 +362,18 @@ Toggle between modes: `/gsd:lazy-mode`
 ```
 /gsd:new-project
 /gsd:lazy-mode              # Enable lazy mode
-/gsd:plan-milestone-all     # Plan all phases
-/gsd:ralph                  # Configure loop settings
-/gsd:run-milestone          # Start autonomous execution
+/gsd:autopilot              # Plan (if needed) and execute
 # ... walk away ...
+```
+
+Or with pre-planning:
+
+```
+/gsd:new-project
+/gsd:lazy-mode              # Enable lazy mode
+/gsd:plan-milestone-all     # Plan all phases first
+/clear
+/gsd:autopilot              # Execute (detects existing plans)
 ```
 
 **Resuming work after a break:**
