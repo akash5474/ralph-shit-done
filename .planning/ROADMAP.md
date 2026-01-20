@@ -157,11 +157,11 @@ Plans:
   2. All existing GSD commands work in lazy mode (new-project, map-codebase, progress)
   3. Mode persists across sessions until changed
   4. Help text shows mode-appropriate commands
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: Mode selection command implementation
-- [ ] 09-02: Base command compatibility verification
+- [ ] 09-01-PLAN.md — Mode infrastructure (mode.sh library, budget.sh extension, lazy-mode.md command)
+- [ ] 09-02-PLAN.md — Command updates (help.md mode labels, progress.md mode display, mode gating)
 
 ### Phase 10: Execution Commands
 **Goal**: Complete user-facing command set for autonomous execution
