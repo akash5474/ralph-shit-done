@@ -311,6 +311,18 @@ while true; do
         # Update state
         handle_iteration_success "$iteration" "$next_task" "$summary" "$iteration_duration"
 
+        # Extract learnings from completed task's SUMMARY.md
+        if type extract_learnings_from_summary &>/dev/null; then
+            # Find SUMMARY file (same location as PLAN file but different suffix)
+            local summary_file
+            summary_file=$(find .planning/phases -name "${next_task}-SUMMARY.md" 2>/dev/null | head -1)
+            if [[ -n "$summary_file" && -f "$summary_file" ]]; then
+                extract_learnings_from_summary "$summary_file" "$next_task"
+                # Prune if getting too large
+                prune_agents_if_needed
+            fi
+        fi
+
         # Create checkpoint commit (protected from interrupt)
         enter_critical_section
         if ! create_checkpoint_commit "$next_task" "$summary"; then
