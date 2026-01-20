@@ -10,17 +10,29 @@ See: .planning/PROJECT.md (updated 2026-01-19)
 ## Current Position
 
 Phase: 8 of 10 (Upfront Planning)
-Plan: 0 of 4 in current phase
-Status: Phase complete
-Last activity: 2026-01-19 - Completed 07-02-PLAN.md
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-19 - Completed 08-01-PLAN.md
 
-Progress: [##################            ] 60%
+Progress: [####################          ] 65%
 
 ## Next Action
 
 Command: /gsd:execute-phase 8
-Description: Execute plan 08-01 (plan-milestone-all workflow design)
-Read: ROADMAP.md, 08-01-PLAN.md
+Description: Execute plan 08-02 (plan-milestone-all command)
+Read: ROADMAP.md, 08-02-PLAN.md
+
+
+## Planning Progress
+
+<!-- PLANNING_PROGRESS_START -->
+**Session:** planning-2026-01-19-1900
+**Status:** in_progress
+
+| Phase | Plans | Status | Generated |
+|-------|-------|--------|-----------|
+| 08 | 2 | in_progress | 2026-01-19 |
+<!-- PLANNING_PROGRESS_END -->
 
 ## Iteration History
 
@@ -32,9 +44,9 @@ Read: ROADMAP.md, 08-01-PLAN.md
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
-- Average duration: ~3.9 min
-- Total execution time: ~58 minutes
+- Total plans completed: 16
+- Average duration: ~4.1 min
+- Total execution time: ~66 minutes
 
 **By Phase:**
 
@@ -47,9 +59,10 @@ Read: ROADMAP.md, 08-01-PLAN.md
 | 5 - Exit Conditions | 2/2 | ~10 min | ~5 min |
 | 6 - Circuit Breaker | 2/2 | ~8 min | ~4 min |
 | 7 - Learnings Propagation | 2/2 | ~8 min | ~4 min |
+| 8 - Upfront Planning | 1/2 | ~8 min | ~8 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (6m), 06-01 (4m), 06-02 (4m), 07-01 (4m), 07-02 (4m)
+- Last 5 plans: 06-01 (4m), 06-02 (4m), 07-01 (4m), 07-02 (4m), 08-01 (8m)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -109,6 +122,9 @@ Recent decisions affecting current work:
 - Safe optional dependency using type check (type func &>/dev/null)
 - Learnings injected under '## Project Learnings' header in Claude prompt
 - Learning extraction happens before checkpoint commit (included in commit)
+- Planning progress uses HTML comment markers (PLANNING_PROGRESS_START/END)
+- Phase enumeration handles both integer and decimal phase numbers
+- Session IDs use planning-YYYY-MM-DD-HHMM format
 
 ### Pending Todos
 
@@ -121,5 +137,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-01-19
-Stopped at: Completed 07-02-PLAN.md (Phase 7 complete)
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None

@@ -145,7 +145,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Planning infrastructure (planning.sh library, state.sh/parse.sh extensions)
+- [x] 08-01-PLAN.md — Planning infrastructure (planning.sh library, state.sh/parse.sh extensions)
 - [ ] 08-02-PLAN.md — plan-milestone-all command with orchestration and refinement loop
 
 ### Phase 9: Mode Selection & Base Commands
@@ -195,7 +195,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Exit Conditions | 2/2 | Complete | 2026-01-19 |
 | 6. Circuit Breaker & Recovery | 2/2 | Complete | 2026-01-19 |
 | 7. Learnings Propagation | 2/2 | Complete | 2026-01-19 |
-| 8. Upfront Planning | 0/2 | Not started | - |
+| 8. Upfront Planning | 1/2 | In progress | - |
 | 9. Mode Selection & Base Commands | 0/2 | Not started | - |
 | 10. Execution Commands | 0/4 | Not started | - |
 
