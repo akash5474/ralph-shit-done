@@ -1,16 +1,19 @@
 #!/bin/bash
 # GSD Ralph - State Management
-# Part of Phase 2: State Extensions
+# Part of Phase 2: State Extensions (extended in Phase 8)
 #
 # Provides STATE.md manipulation functions for the ralph loop.
 # Functions: atomic_write, update_section, update_current_position,
 #            update_next_action, add_iteration_entry, get_iteration_count,
-#            log_exit_status
+#            log_exit_status, init_planning_progress, update_planning_progress,
+#            set_planning_session, get_planning_status
 #
 # Usage:
 #   source bin/lib/state.sh
 #   add_iteration_entry 1 "SUCCESS" "02-01: Schema extensions"
 #   update_next_action 2 "02-02" "Progress indicator"
+#   init_planning_progress
+#   update_planning_progress "08" "in_progress" "2"
 
 # Configuration
 STATE_FILE="${STATE_FILE:-.planning/STATE.md}"
@@ -595,5 +598,203 @@ log_exit_status() {
 
     add_iteration_entry "$iteration_count" "$status" "$exit_msg"
 
+    return 0
+}
+
+# =============================================================================
+# Planning Progress Functions (Plan 08-01)
+# =============================================================================
+
+# init_planning_progress - Add planning progress section to STATE.md if not present
+# Returns: 0 on success, 1 on failure
+# Creates the Planning Progress section with markers after ## Next Action
+init_planning_progress() {
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo -e "${STATE_RED}Error: STATE_FILE not found: $STATE_FILE${STATE_RESET}" >&2
+        return 1
+    fi
+
+    # Check if planning progress section already exists
+    if grep -q "<!-- PLANNING_PROGRESS_START -->" "$STATE_FILE" 2>/dev/null; then
+        return 0  # Already exists, nothing to do
+    fi
+
+    # Create temp file
+    local temp
+    temp=$(mktemp)
+
+    # Insert planning progress section after ## Next Action section
+    # We find the next ## after Next Action and insert before it
+    awk '
+        BEGIN { found_next_action = 0; inserted = 0 }
+        /^## Next Action/ {
+            found_next_action = 1
+            print
+            next
+        }
+        /^## / && found_next_action && !inserted {
+            # Insert planning progress section before this section
+            print ""
+            print "## Planning Progress"
+            print ""
+            print "<!-- PLANNING_PROGRESS_START -->"
+            print "**Session:** none"
+            print "**Status:** not_started"
+            print ""
+            print "| Phase | Plans | Status | Generated |"
+            print "|-------|-------|--------|-----------|"
+            print "<!-- PLANNING_PROGRESS_END -->"
+            print ""
+            inserted = 1
+        }
+        { print }
+    ' "$STATE_FILE" > "$temp"
+
+    # Atomic replace
+    mv "$temp" "$STATE_FILE"
+    return $?
+}
+
+# update_planning_progress - Update planning progress for a phase
+# Args: phase_num, status (pending|in_progress|complete|failed), [plan_count]
+# Returns: 0 on success, 1 on failure
+# Updates or appends the row for the specified phase in the progress table
+update_planning_progress() {
+    local phase_num="$1"
+    local status="$2"
+    local plan_count="${3:-0}"
+
+    if [[ -z "$phase_num" || -z "$status" ]]; then
+        echo -e "${STATE_RED}Error: update_planning_progress requires phase_num and status${STATE_RESET}" >&2
+        return 1
+    fi
+
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo -e "${STATE_RED}Error: STATE_FILE not found: $STATE_FILE${STATE_RESET}" >&2
+        return 1
+    fi
+
+    # Ensure planning progress section exists
+    if ! grep -q "<!-- PLANNING_PROGRESS_START -->" "$STATE_FILE" 2>/dev/null; then
+        init_planning_progress
+    fi
+
+    # Pad phase number for display (ensure clean numeric input)
+    local padded
+    local clean_num=$((10#$phase_num))  # Remove leading zeros, convert to decimal
+    padded=$(printf "%02d" "$clean_num" 2>/dev/null || echo "$phase_num")
+
+    # Get current timestamp for Generated column
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d')
+
+    # Create temp file
+    local temp
+    temp=$(mktemp)
+
+    # Check if phase row already exists
+    if grep -qE "^\| *${padded} *\|" "$STATE_FILE" 2>/dev/null || grep -qE "^\| *${phase_num} *\|" "$STATE_FILE" 2>/dev/null; then
+        # Update existing row
+        awk -v phase="$padded" -v status="$status" -v count="$plan_count" -v ts="$timestamp" '
+            /^<!-- PLANNING_PROGRESS_START -->$/,/^<!-- PLANNING_PROGRESS_END -->$/ {
+                if ($0 ~ "^\\| *" phase " *\\|" || $0 ~ "^\\| *" int(phase) " *\\|") {
+                    print "| " phase " | " count " | " status " | " ts " |"
+                    next
+                }
+            }
+            { print }
+        ' "$STATE_FILE" > "$temp"
+    else
+        # Append new row before PLANNING_PROGRESS_END marker
+        awk -v phase="$padded" -v status="$status" -v count="$plan_count" -v ts="$timestamp" '
+            /^<!-- PLANNING_PROGRESS_END -->$/ {
+                print "| " phase " | " count " | " status " | " ts " |"
+            }
+            { print }
+        ' "$STATE_FILE" > "$temp"
+    fi
+
+    # Atomic replace
+    mv "$temp" "$STATE_FILE"
+    return $?
+}
+
+# set_planning_session - Update session info in planning progress
+# Args: session_id (e.g., "planning-2026-01-19"), status (not_started|in_progress|completed|needs_refinement)
+# Returns: 0 on success, 1 on failure
+# Updates the **Session:** and **Status:** lines
+set_planning_session() {
+    local session_id="$1"
+    local status="$2"
+
+    if [[ -z "$session_id" || -z "$status" ]]; then
+        echo -e "${STATE_RED}Error: set_planning_session requires session_id and status${STATE_RESET}" >&2
+        return 1
+    fi
+
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo -e "${STATE_RED}Error: STATE_FILE not found: $STATE_FILE${STATE_RESET}" >&2
+        return 1
+    fi
+
+    # Ensure planning progress section exists
+    if ! grep -q "<!-- PLANNING_PROGRESS_START -->" "$STATE_FILE" 2>/dev/null; then
+        init_planning_progress
+    fi
+
+    # Create temp file
+    local temp
+    temp=$(mktemp)
+
+    # Update Session and Status lines between planning markers
+    awk -v session="$session_id" -v status="$status" '
+        /^<!-- PLANNING_PROGRESS_START -->$/,/^<!-- PLANNING_PROGRESS_END -->$/ {
+            if (/^\*\*Session:\*\*/) {
+                print "**Session:** " session
+                next
+            }
+            if (/^\*\*Status:\*\*/) {
+                print "**Status:** " status
+                next
+            }
+        }
+        { print }
+    ' "$STATE_FILE" > "$temp"
+
+    # Atomic replace
+    mv "$temp" "$STATE_FILE"
+    return $?
+}
+
+# get_planning_status - Read current planning status
+# Returns: Current session status (not_started|in_progress|completed|needs_refinement)
+# Return code: 0 on success, 1 on failure
+# Parses the **Status:** line between planning markers
+get_planning_status() {
+    if [[ ! -f "$STATE_FILE" ]]; then
+        echo -e "${STATE_RED}Error: STATE_FILE not found: $STATE_FILE${STATE_RESET}" >&2
+        return 1
+    fi
+
+    # Check if planning progress section exists
+    if ! grep -q "<!-- PLANNING_PROGRESS_START -->" "$STATE_FILE" 2>/dev/null; then
+        echo "not_started"
+        return 0
+    fi
+
+    # Extract status from between planning markers
+    local status
+    status=$(sed -n '/<!-- PLANNING_PROGRESS_START -->/,/<!-- PLANNING_PROGRESS_END -->/{
+        /^\*\*Status:\*\*/ {
+            s/^\*\*Status:\*\* *//
+            p
+        }
+    }' "$STATE_FILE")
+
+    if [[ -z "$status" ]]; then
+        echo "not_started"
+    else
+        echo "$status"
+    fi
     return 0
 }
