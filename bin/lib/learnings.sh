@@ -287,3 +287,144 @@ append_learning() {
     mv "$temp" "$AGENTS_FILE"
     return $?
 }
+
+# =============================================================================
+# Learning Extraction Functions
+# =============================================================================
+
+# extract_learnings_from_summary - Parse SUMMARY.md frontmatter for learnings
+# Args: summary_file - Path to SUMMARY.md
+#       task_id - Task ID (e.g., "07-01") to determine phase number
+# Returns: 0 always (missing file is OK - nothing to extract)
+#
+# Extracts patterns-established -> Phase N section
+# Extracts key-decisions -> Codebase Patterns section
+extract_learnings_from_summary() {
+    local summary_file="$1"
+    local task_id="$2"
+
+    if [[ ! -f "$summary_file" ]]; then
+        return 0  # No summary file, nothing to extract
+    fi
+
+    # Parse task_id to get phase number (e.g., "07-01" -> "7")
+    local phase_num="${task_id%%-*}"
+    # Remove leading zero (e.g., "07" -> "7")
+    phase_num=$((10#$phase_num))
+
+    # Extract only the YAML frontmatter (between --- markers)
+    local frontmatter
+    frontmatter=$(sed -n '/^---$/,/^---$/{
+        /^---$/d
+        p
+    }' "$summary_file")
+
+    # Extract patterns-established from frontmatter
+    # Format: patterns-established:
+    #   - "pattern1"
+    #   - "pattern2"
+    local patterns
+    patterns=$(echo "$frontmatter" | sed -n '/^patterns-established:/,/^[a-z]/{
+        /^patterns-established:/d
+        /^[a-z]/d
+        s/^[[:space:]]*- //
+        s/"//g
+        /^$/d
+        p
+    }')
+
+    # Extract key-decisions from frontmatter
+    local decisions
+    decisions=$(echo "$frontmatter" | sed -n '/^key-decisions:/,/^[a-z]/{
+        /^key-decisions:/d
+        /^[a-z]/d
+        s/^[[:space:]]*- //
+        s/"//g
+        /^$/d
+        p
+    }')
+
+    # Store each pattern in phase-specific section
+    while IFS= read -r pattern; do
+        if [[ -n "$pattern" ]]; then
+            append_learning "Phase ${phase_num}" "$pattern"
+        fi
+    done <<< "$patterns"
+
+    # Store each decision in Codebase Patterns section
+    while IFS= read -r decision; do
+        if [[ -n "$decision" ]]; then
+            append_learning "Codebase Patterns" "$decision"
+        fi
+    done <<< "$decisions"
+
+    return 0
+}
+
+# =============================================================================
+# Size Management Functions
+# =============================================================================
+
+# prune_agents_if_needed - Enforce size limits on AGENTS.md
+# Returns: 0 always
+#
+# Warning at MAX_AGENTS_LINES (100), hard cap at MAX_AGENTS_LINES_HARD (150)
+# Per CONTEXT.md: system manages entirely, users don't manually curate
+prune_agents_if_needed() {
+    if [[ ! -f "$AGENTS_FILE" ]]; then
+        return 0  # No file, nothing to prune
+    fi
+
+    local line_count
+    line_count=$(wc -l < "$AGENTS_FILE")
+    line_count=$(echo "$line_count" | tr -d ' ')
+
+    # Under warning threshold - all good
+    if [[ "$line_count" -le "$MAX_AGENTS_LINES" ]]; then
+        return 0
+    fi
+
+    # Between warning and hard cap - just warn
+    if [[ "$line_count" -le "$MAX_AGENTS_LINES_HARD" ]]; then
+        echo -e "${LEARN_YELLOW}Warning: AGENTS.md has $line_count lines (limit: $MAX_AGENTS_LINES)${LEARN_RESET}" >&2
+        return 0
+    fi
+
+    # Over hard cap - truncate oldest entries from each section
+    echo -e "${LEARN_YELLOW}Warning: AGENTS.md has $line_count lines (hard cap: $MAX_AGENTS_LINES_HARD) - pruning oldest entries${LEARN_RESET}" >&2
+
+    # Create temp file for atomic write
+    local temp
+    temp=$(mktemp)
+
+    # Keep first 10 learnings per section (newest are first due to append order)
+    # This is a simplified pruning - just keep header/intro and first 10 list items per section
+    awk '
+        BEGIN { section = ""; item_count = 0 }
+        /^## / {
+            section = $0
+            item_count = 0
+            print
+            next
+        }
+        /^### / {
+            section = $0
+            item_count = 0
+            print
+            next
+        }
+        /^- / {
+            item_count++
+            if (item_count <= 10) {
+                print
+            }
+            next
+        }
+        { print }
+    ' "$AGENTS_FILE" > "$temp"
+
+    # Atomic replace
+    mv "$temp" "$AGENTS_FILE"
+
+    return 0
+}
