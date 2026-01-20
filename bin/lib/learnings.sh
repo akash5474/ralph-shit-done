@@ -155,3 +155,135 @@ get_learnings_for_phase() {
     echo "$output"
     return 0
 }
+
+# =============================================================================
+# Learning Storage Functions
+# =============================================================================
+
+# append_learning - Add learning if not already present
+# Args: section - Target section name (e.g., "Error Fixes", "Codebase Patterns", "Phase 5")
+#       learning - The learning text to add (will be prefixed with "- ")
+# Returns: 0 on success (including if already exists - idempotent)
+#
+# Deduplication: Uses grep -qF for exact match check
+# For "Phase N" sections, creates as ### subsection under ## Phase-Specific
+append_learning() {
+    local section="$1"
+    local learning="$2"
+
+    if [[ -z "$section" || -z "$learning" ]]; then
+        echo -e "${LEARN_RED}Error: append_learning requires section and learning${LEARN_RESET}" >&2
+        return 1
+    fi
+
+    # Ensure AGENTS.md exists
+    if [[ ! -f "$AGENTS_FILE" ]]; then
+        init_agents_file
+    fi
+
+    # Check if learning already exists (exact match deduplication)
+    if grep -qF "$learning" "$AGENTS_FILE" 2>/dev/null; then
+        return 0  # Already exists, silently skip (idempotent)
+    fi
+
+    # Determine if this is a phase-specific section (Phase N)
+    local is_phase_section=false
+    local phase_num=""
+    if [[ "$section" =~ ^Phase\ ([0-9]+)$ ]]; then
+        is_phase_section=true
+        phase_num="${BASH_REMATCH[1]}"
+    fi
+
+    # Create temp file for atomic write
+    local temp
+    temp=$(mktemp)
+
+    if [[ "$is_phase_section" == "true" ]]; then
+        # Phase-specific: Add under ## Phase-Specific as ### Phase N: subsection
+        local subsection_header="### Phase ${phase_num}:"
+
+        # Check if subsection exists
+        if grep -q "^${subsection_header}$" "$AGENTS_FILE" 2>/dev/null; then
+            # Subsection exists - insert after header
+            awk -v header="$subsection_header" -v learning="- $learning" '
+                $0 == header {
+                    print
+                    getline
+                    print
+                    print learning
+                    next
+                }
+                { print }
+            ' "$AGENTS_FILE" > "$temp"
+        else
+            # Subsection doesn't exist - create it under Phase-Specific
+            awk -v header="$subsection_header" -v learning="- $learning" '
+                /^## Phase-Specific/ {
+                    print
+                    getline
+                    print
+                    print header
+                    print ""
+                    print learning
+                    print ""
+                    next
+                }
+                { print }
+            ' "$AGENTS_FILE" > "$temp"
+        fi
+    else
+        # Regular section (Error Fixes, Codebase Patterns)
+        local section_header="## $section"
+
+        # Check if section exists
+        if grep -q "^${section_header}$" "$AGENTS_FILE" 2>/dev/null; then
+            # Section exists - insert after intro text (header + intro line + blank)
+            # Pattern: ## Header\n\nIntro text:\n\n<learnings go here>
+            awk -v header="$section_header" -v learning="- $learning" '
+                BEGIN { found_header = 0; blank_count = 0; added = 0 }
+                $0 == header {
+                    found_header = 1
+                    print
+                    next
+                }
+                found_header && !added {
+                    if (/^$/) {
+                        blank_count++
+                        print
+                        # After second blank line (after intro text), insert learning
+                        if (blank_count == 2) {
+                            print learning
+                            added = 1
+                            found_header = 0
+                        }
+                        next
+                    }
+                    # If we hit a list item before second blank, insert before it
+                    if (/^- /) {
+                        print learning
+                        added = 1
+                        found_header = 0
+                    }
+                    # Print the current line
+                    print
+                    next
+                }
+                { print }
+            ' "$AGENTS_FILE" > "$temp"
+        else
+            # Section doesn't exist - create it at end of file
+            cp "$AGENTS_FILE" "$temp"
+            {
+                echo ""
+                echo "$section_header"
+                echo ""
+                echo "- $learning"
+                echo ""
+            } >> "$temp"
+        fi
+    fi
+
+    # Atomic replace
+    mv "$temp" "$AGENTS_FILE"
+    return $?
+}
