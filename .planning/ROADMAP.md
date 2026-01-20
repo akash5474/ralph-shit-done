@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Exit Conditions** - Test-based completion, stuck detection, and dual-exit gate
 - [x] **Phase 6: Circuit Breaker & Recovery** - Pause after consecutive failures, analyze stuck state
 - [x] **Phase 7: Learnings Propagation** - Write discovered patterns to AGENTS.md across iterations
-- [ ] **Phase 8: Upfront Planning** - Generate all PLAN.md files before autonomous execution begins
+- [x] **Phase 8: Upfront Planning** - Generate all PLAN.md files before autonomous execution begins
 - [ ] **Phase 9: Mode Selection & Base Commands** - Interactive vs Lazy mode selection at startup
 - [ ] **Phase 10: Execution Commands** - Full command set for autonomous milestone execution
 
@@ -146,7 +146,7 @@ Plans:
 
 Plans:
 - [x] 08-01-PLAN.md — Planning infrastructure (planning.sh library, state.sh/parse.sh extensions)
-- [ ] 08-02-PLAN.md — plan-milestone-all command with orchestration and refinement loop
+- [x] 08-02-PLAN.md — plan-milestone-all command with orchestration and refinement loop
 
 ### Phase 9: Mode Selection & Base Commands
 **Goal**: Enable users to choose Interactive vs Lazy mode at startup
@@ -195,7 +195,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Exit Conditions | 2/2 | Complete | 2026-01-19 |
 | 6. Circuit Breaker & Recovery | 2/2 | Complete | 2026-01-19 |
 | 7. Learnings Propagation | 2/2 | Complete | 2026-01-19 |
-| 8. Upfront Planning | 1/2 | In progress | - |
+| 8. Upfront Planning | 2/2 | Complete | 2026-01-19 |
 | 9. Mode Selection & Base Commands | 0/2 | Not started | - |
 | 10. Execution Commands | 0/4 | Not started | - |
 

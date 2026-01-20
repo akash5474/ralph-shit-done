@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-01-19)
 
 **Core value:** Plan once, walk away, wake up to done. No human needed at the computer after planning.
-**Current focus:** Phase 8 - Upfront Planning
+**Current focus:** Phase 9 - Mode Selection & Base Commands
 
 ## Current Position
 
-Phase: 8 of 10 (Upfront Planning)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-01-20 - Completed 08-02-PLAN.md
+Phase: 9 of 10 (Mode Selection & Base Commands)
+Plan: 0 of 2 in current phase
+Status: Ready for planning
+Last activity: 2026-01-19 - Completed Phase 8 (Upfront Planning)
 
-Progress: [######################        ] 70%
+Progress: [########################      ] 80%
 
 ## Next Action
 
-Command: /gsd:execute-phase 9
-Description: Start Phase 9 (Mode Selection)
-Read: ROADMAP.md, 09-CONTEXT.md or 09-01-PLAN.md
+Command: /gsd:discuss-phase 9
+Description: Gather context for Phase 9 (Mode Selection)
+Read: ROADMAP.md
 
 
 ## Planning Progress
@@ -141,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-20
-Stopped at: Completed 08-02-PLAN.md (Phase 8 complete)
+Last session: 2026-01-19
+Stopped at: Phase 8 verified, ready for Phase 9
 Resume file: None

@@ -27,10 +27,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Upfront Planning
 
-- [ ] **PLAN-01**: Generate ALL PLAN.md files for ALL phases before execution starts
-- [ ] **PLAN-02**: LLM-guided phase structure determination
-- [ ] **PLAN-03**: Dependency analysis across phases
-- [ ] **PLAN-04**: Interactive refinement during planning session
+- [x] **PLAN-01**: Generate ALL PLAN.md files for ALL phases before execution starts
+- [x] **PLAN-02**: LLM-guided phase structure determination
+- [x] **PLAN-03**: Dependency analysis across phases
+- [x] **PLAN-04**: Interactive refinement during planning session
 
 ### State & Persistence
 
@@ -96,10 +96,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LOOP-03 | Phase 6: Circuit Breaker & Recovery | Complete |
 | LOOP-04 | Phase 6: Circuit Breaker & Recovery | Complete |
 | STATE-04 | Phase 7: Learnings Propagation | Complete |
-| PLAN-01 | Phase 8: Upfront Planning | Pending |
-| PLAN-02 | Phase 8: Upfront Planning | Pending |
-| PLAN-03 | Phase 8: Upfront Planning | Pending |
-| PLAN-04 | Phase 8: Upfront Planning | Pending |
+| PLAN-01 | Phase 8: Upfront Planning | Complete |
+| PLAN-02 | Phase 8: Upfront Planning | Complete |
+| PLAN-03 | Phase 8: Upfront Planning | Complete |
+| PLAN-04 | Phase 8: Upfront Planning | Complete |
 | CMD-01 | Phase 9: Mode Selection & Base Commands | Pending |
 | CMD-05 | Phase 9: Mode Selection & Base Commands | Pending |
 | CMD-02 | Phase 10: Execution Commands | Pending |
@@ -113,4 +113,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-19 after Phase 7 completion*
+*Last updated: 2026-01-19 after Phase 8 completion*
