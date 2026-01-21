@@ -165,3 +165,106 @@ function launchXtermEmulator() {
   // Use same approach as xterm
   return launchXterm();
 }
+
+function showManualInstructions(platform) {
+  const cwd = process.cwd();
+  const script = path.join(cwd, 'bin', 'ralph.sh');
+
+  console.log('\n==========================================');
+  console.log(' TERMINAL LAUNCH UNAVAILABLE');
+  console.log('==========================================\n');
+  console.log('Could not detect a supported terminal emulator.\n');
+  console.log('To run autopilot manually:\n');
+  console.log('  1. Open a new terminal window');
+  console.log(`  2. cd ${cwd}`);
+
+  if (platform === 'win32') {
+    console.log(`  3. bash ${script}\n`);
+    console.log('Supported terminals on Windows:');
+    console.log('  - Windows Terminal (wt.exe)');
+    console.log('  - Command Prompt (cmd.exe)');
+    console.log('  - PowerShell');
+    console.log('  - Git Bash');
+  } else if (platform === 'darwin') {
+    console.log(`  3. ${script}\n`);
+    console.log('Supported terminals on macOS:');
+    console.log('  - Terminal.app');
+  } else {
+    console.log(`  3. ${script}\n`);
+    console.log('Supported terminals on Linux:');
+    console.log('  - gnome-terminal');
+    console.log('  - xterm');
+    console.log('  - x-terminal-emulator');
+  }
+
+  console.log('\n==========================================\n');
+}
+
+/**
+ * Launch ralph.sh in a new terminal window
+ *
+ * @returns {Object} Result object with:
+ *   - success: boolean - whether terminal was launched
+ *   - terminal: string - terminal name used (if success)
+ *   - pid: number - process ID (if success)
+ *   - reason: string - failure reason (if !success)
+ *   - error: string - error message (if launch failed)
+ */
+function launchTerminal() {
+  const platform = process.platform;
+  const terminal = findTerminal(platform);
+
+  if (!terminal) {
+    showManualInstructions(platform);
+    return { success: false, reason: 'no_terminal_found' };
+  }
+
+  try {
+    const subprocess = terminal.launcher();
+    subprocess.unref(); // Critical: allow parent to exit independently
+
+    console.log(`\nLaunched ralph.sh in new ${terminal.name} window`);
+    console.log('You can now close this Claude session - ralph.sh will continue running.\n');
+
+    return {
+      success: true,
+      terminal: terminal.name,
+      pid: subprocess.pid
+    };
+  } catch (err) {
+    console.error(`\nFailed to launch ${terminal.name}: ${err.message}\n`);
+    showManualInstructions(platform);
+    return {
+      success: false,
+      reason: 'launch_failed',
+      error: err.message
+    };
+  }
+}
+
+module.exports = {
+  launchTerminal,
+  findTerminal,  // Exported for testing
+  showManualInstructions  // Exported for direct use if needed
+};
+
+// CLI support - run directly for testing
+if (require.main === module) {
+  console.log('Terminal Launcher Test');
+  console.log('Platform:', process.platform);
+
+  const terminal = findTerminal(process.platform);
+  if (terminal) {
+    console.log('Found terminal:', terminal.name);
+    console.log('\nLaunching terminal in 3 seconds...');
+    setTimeout(() => {
+      const result = launchTerminal();
+      console.log('Result:', JSON.stringify(result, null, 2));
+      process.exit(result.success ? 0 : 1);
+    }, 3000);
+  } else {
+    console.log('No terminal found');
+    showManualInstructions(process.platform);
+    process.exit(1);
+  }
+}
