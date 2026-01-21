@@ -1,21 +1,25 @@
 <div align="center">
 
-# GET SHIT DONE 
+# GET SHIT DONE (Autopilot Fork)
 
 **A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code by TÂCHES.**
 
-**Solves context rot — the quality degradation that happens as Claude fills its context window.**
+**This fork adds Lazy Mode — autonomous "fire and forget" execution that works through entire milestones while you sleep.**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/glittercowboy/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/glittercowboy/get-shit-done)
+[![GitHub stars](https://img.shields.io/github/stars/jamoeight/get-shit-done-autopilot?style=for-the-badge&logo=github&color=181717)](https://github.com/jamoeight/get-shit-done-autopilot)
 
 <br>
 
+### Install This Fork
+
 ```bash
-npx get-shit-done-cc
+git clone https://github.com/jamoeight/get-shit-done-autopilot.git
+cd get-shit-done-autopilot
+node bin/install.js --local
 ```
+
+> **Note:** Running `npx get-shit-done-cc` installs the upstream version without Lazy Mode. Use the git clone method above to get this fork's autopilot features.
 
 **Works on Mac, Windows, and Linux.**
 
@@ -43,14 +47,11 @@ npx get-shit-done-cc
 
 <div align="center">
 
-## 🧪 Lazy Mode (Experimental)
+## Lazy Mode
 
 **Fire and forget. Plan everything upfront, walk away, wake up to done.**
 
 </div>
-
-> [!WARNING]
-> Lazy Mode is experimental. It works, but expect rough edges. Feedback welcome.
 
 Lazy Mode flips the GSD workflow: instead of planning and executing phase-by-phase, you do **all planning in one session**, then let agents grind through execution autonomously.
 
@@ -69,11 +70,13 @@ Lazy Mode flips the GSD workflow: instead of planning and executing phase-by-pha
 │                                                             │
 │  /gsd:autopilot          → Autonomous execution begins      │
 │                                                             │
-│  • Loops through all plans                                  │
+│  • Auto-launches in separate terminal window                │
+│  • Live progress watcher opens (zero API tokens)            │
 │  • Fresh context per iteration                              │
 │  • Commits after each success                               │
+│  • Failed tasks learn from mistakes (failure propagation)   │
 │  • Circuit breaker on repeated failures                     │
-│  • Ctrl+C for graceful stop with resume                     │
+│  • Press 'p' to pause, 'r' to resume, 'q' to quit           │
 │                                                             │
 ├─────────────────────────────────────────────────────────────┤
 │  WAKE UP TO DONE 🎉                                          │
@@ -107,6 +110,17 @@ Lazy Mode flips the GSD workflow: instead of planning and executing phase-by-pha
 | `/gsd:lazy-mode` | Toggle between Interactive and Lazy mode |
 | `/gsd:plan-milestone-all` | Generate ALL PLAN.md files in one session |
 | `/gsd:autopilot` | Configure settings + start autonomous execution |
+
+### Features (v1.1)
+
+| Feature | What it does |
+|---------|--------------|
+| **Terminal Launcher** | Autopilot opens in a new terminal window (Windows, macOS, Linux) |
+| **Progress Watcher** | Live monitoring in second terminal — zero API tokens consumed |
+| **Pause/Resume** | Press `p` to pause at next safe point, `r` to resume, `q` to quit |
+| **Failure Learnings** | When tasks fail, context is extracted and fed to retries |
+| **Circuit Breaker** | Stops after repeated failures (configurable max iterations) |
+| **Git Checkpointing** | Every successful task commits atomically for clean rollback |
 
 ### Why Stay for Planning?
 
@@ -151,22 +165,34 @@ People who want to describe what they want and have it built correctly — witho
 
 ## Getting Started
 
+### This Fork (with Lazy Mode)
+
+```bash
+git clone https://github.com/jamoeight/get-shit-done-autopilot.git
+cd get-shit-done-autopilot
+node bin/install.js --local
+```
+
+Verify with `/gsd:help` inside your Claude Code interface.
+
+### Upstream (without Lazy Mode)
+
 ```bash
 npx get-shit-done-cc
 ```
 
-That's it. Verify with `/gsd:help` inside your Claude Code interface.
+> **Note:** The npm package is the upstream version maintained by TÂCHES. It does not include Lazy Mode or autopilot features. Use the git clone method above for this fork.
 
 ### Staying Updated
 
-GSD evolves fast. Check for updates periodically:
-
+**This fork:**
+```bash
+cd get-shit-done-autopilot
+git pull origin main
+node bin/install.js --local
 ```
-/gsd:whats-new
-```
 
-Update with:
-
+**Upstream:**
 ```bash
 npx get-shit-done-cc@latest
 ```
@@ -175,26 +201,11 @@ npx get-shit-done-cc@latest
 <summary><strong>Non-interactive Install (Docker, CI, Scripts)</strong></summary>
 
 ```bash
-npx get-shit-done-cc --global   # Install to ~/.claude/
-npx get-shit-done-cc --local    # Install to ./.claude/
+node bin/install.js --global   # Install to ~/.claude/
+node bin/install.js --local    # Install to ./.claude/
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the interactive prompt.
-
-</details>
-
-<details>
-<summary><strong>Development Installation</strong></summary>
-
-Clone the repository and run the installer locally:
-
-```bash
-git clone https://github.com/glittercowboy/get-shit-done.git
-cd get-shit-done
-node bin/install.js --local
-```
-
-Installs to `./.claude/` for testing modifications before contributing.
 
 </details>
 
@@ -652,32 +663,33 @@ Use `/gsd:settings` to toggle these, or override per-invocation:
 
 **Commands not working as expected?**
 - Run `/gsd:help` to verify installation
-- Re-run `npx get-shit-done-cc` to reinstall
+- Re-run `node bin/install.js --local` from the repo directory
 
 **Updating to the latest version?**
 ```bash
-npx get-shit-done-cc@latest
+cd get-shit-done-autopilot
+git pull origin main
+node bin/install.js --local
 ```
+
+**Autopilot not launching terminal?**
+- The terminal launcher supports Windows Terminal, PowerShell, cmd.exe, iTerm2, Terminal.app, gnome-terminal, and konsole
+- If your terminal isn't detected, manual instructions are shown with the command to copy/paste
 
 **Using Docker or containerized environments?**
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude node bin/install.js --global
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
 ---
 
-## Star History
+## Links
 
-<a href="https://star-history.com/#glittercowboy/get-shit-done&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
- </picture>
-</a>
+- **This Fork:** [github.com/jamoeight/get-shit-done-autopilot](https://github.com/jamoeight/get-shit-done-autopilot)
+- **Upstream:** [github.com/glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done)
 
 ---
 
@@ -689,6 +701,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Claude Code is powerful. GSD makes it reliable.**
+**Claude Code is powerful. GSD makes it reliable. Lazy Mode makes it autonomous.**
 
 </div>
