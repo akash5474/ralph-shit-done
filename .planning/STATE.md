@@ -29,6 +29,12 @@ Read: .planning/MILESTONES.md for what's next
 | v1.0 | Lazy Mode MVP | 1-10 (22 plans) | 2026-01-20 |
 | v1.1 | Execution Isolation & Failure Learnings | 11-12 (4 plans) | 2026-01-21 |
 
+## Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Add live progress watcher for autopilot mode | 2026-01-21 | 0b6ba43 | [001-autopilot-progress-watcher](./quick/001-autopilot-progress-watcher/) |
+
 ## Decisions
 
 (Cleared on milestone completion — see PROJECT.md Key Decisions for full record)
