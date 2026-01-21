@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-01-20)
 ## Current Position
 
 Phase: 12 - Failure Learnings
-Plan: 12-01 of 2 (in progress)
-Status: In progress
-Last activity: 2026-01-21 - Completed 12-01-PLAN.md
+Plan: 12-02 of 2 (phase complete)
+Status: Phase complete
+Last activity: 2026-01-21 - Completed 12-02-PLAN.md
 
-Progress: [█████████████████████████████░] 100% (v1.1: 24/24 plans total)
+Progress: [██████████████████████████████] 100% (v1.1: 24/24 plans complete)
 
 ## Next Action
 
-Command: /gsd:execute-plan 12-02
-Description: Execute second plan in Failure Learnings phase (Ralph Integration)
-Read: .planning/phases/12-failure-learnings/12-02-PLAN.md
+Command: None
+Description: Phase 12 complete - all v1.1 requirements satisfied
+Read: .planning/phases/12-failure-learnings/12-02-SUMMARY.md
 
 ## Milestone History
 
@@ -34,7 +34,7 @@ Read: .planning/phases/12-failure-learnings/12-02-PLAN.md
 | Phase | Goal | Requirements | Status |
 |-------|------|--------------|--------|
 | 11 | Terminal Launcher | EXEC-01, EXEC-02, EXEC-03, EXEC-04 | Complete |
-| 12 | Failure Learnings | FAIL-01, FAIL-02, FAIL-03, FAIL-04 | In Progress (1/2) |
+| 12 | Failure Learnings | FAIL-01, FAIL-02, FAIL-03, FAIL-04 | Complete (2/2) |
 
 ## Decisions
 
@@ -50,9 +50,12 @@ Read: .planning/phases/12-failure-learnings/12-02-PLAN.md
 | Multi-line failure entry format | 12-01 | Failure storage | Full context for retries (task ID, timestamp, error, attempted, files, context) |
 | Phase-scoped subsections in Failure Context | 12-01 | Failure organization | Enables selective cleanup on phase completion |
 | 100-failure cap per phase | 12-01 | Resource management | Prevents unbounded growth, drops oldest first |
+| Failure context extraction before cleanup | 12-02 | Ralph integration | Preserve failure details by reading output_file before deletion |
+| Phase boundary detection via task ID parsing | 12-02 | Cleanup trigger | Reliable phase change detection from task IDs (e.g., 12-01 → 13-01) |
+| Clear failures on COMPLETE and phase transition | 12-02 | Fresh phase start | Ensure failures cleared whether all phases complete or just current phase |
 
 ## Session Continuity
 
 Last session: 2026-01-21
-Stopped at: Completed 12-01-PLAN.md
+Stopped at: Completed 12-02-PLAN.md (Phase 12 complete, v1.1 complete)
 Resume file: None
