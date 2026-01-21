@@ -106,13 +106,14 @@ handle_iteration_success() {
 }
 
 # handle_iteration_failure_state - Process failed iteration (state only)
-# Args: iteration, task, error, duration
+# Args: iteration, task, error, duration, output_file (optional)
 # Updates STATE.md but does NOT advance next_action (retry same task)
 handle_iteration_failure_state() {
     local iteration_num="$1"
     local task="$2"
     local error="$3"
     local duration="$4"
+    local output_file="${5:-}"
 
     # Log the iteration
     log_iteration "$iteration_num" "FAILURE" "$task" "$error" "$duration"
@@ -120,7 +121,52 @@ handle_iteration_failure_state() {
     # Add entry to STATE.md history
     add_iteration_entry "$iteration_num" "FAILURE" "$task: $error"
 
+    # Extract and store failure learning for retry context
+    if [[ -n "$output_file" ]]; then
+        extract_and_store_failure "$task" "$output_file" "$error"
+    fi
+
     # Do NOT update next_action - stay on same task for retry
+}
+
+# extract_and_store_failure - Extract failure details and store as learning
+# Args: task_id, output_file, error_msg
+# Called when a task fails to capture context for retries
+extract_and_store_failure() {
+    local task_id="$1"
+    local output_file="$2"
+    local error_msg="$3"
+
+    # Skip if learnings functions not available
+    if ! type extract_failure_reason &>/dev/null; then
+        return 0
+    fi
+
+    # Extract detailed failure reason from Claude's output
+    local failure_reason=""
+    if [[ -n "$output_file" && -f "$output_file" ]]; then
+        failure_reason=$(extract_failure_reason "$output_file")
+    fi
+
+    # Build "attempted" from task context
+    local attempted="Executed task ${task_id}"
+
+    # Extract file paths mentioned in output (best effort)
+    local files=""
+    if [[ -n "$output_file" && -f "$output_file" ]]; then
+        # Look for file paths in the output (common patterns)
+        files=$(grep -oE '[a-zA-Z0-9_/-]+\.(sh|ts|js|md|json)' "$output_file" 2>/dev/null | sort -u | head -5 | tr '\n' ', ' | sed 's/,$//')
+    fi
+    files="${files:-unknown}"
+
+    # Use failure_reason as context if different from error_msg
+    local context="$error_msg"
+    if [[ -n "$failure_reason" && "$failure_reason" != "$error_msg" ]]; then
+        context="$failure_reason"
+    fi
+
+    # Store the failure learning
+    append_failure_learning "$task_id" "$error_msg" "$attempted" "$files" "$context"
 }
 
 # =============================================================================
@@ -351,10 +397,12 @@ while true; do
 
         # Normal failure - parse error and offer user choice
         error_msg=$(parse_claude_output "$output_file")
-        rm -f "$output_file" 2>/dev/null
 
         # Record failure in state
-        handle_iteration_failure_state "$iteration" "$next_task" "$error_msg" "$iteration_duration"
+        handle_iteration_failure_state "$iteration" "$next_task" "$error_msg" "$iteration_duration" "$output_file"
+
+        # Clean up output file after extracting failure context
+        rm -f "$output_file" 2>/dev/null
 
         # Check if stuck on same task
         if check_stuck "$next_task"; then
