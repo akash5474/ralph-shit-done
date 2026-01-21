@@ -27,7 +27,7 @@ Read: .planning/phases/12-failure-learnings/12-02-SUMMARY.md
 | Version | Name | Phases | Shipped |
 |---------|------|--------|---------|
 | v1.0 | Lazy Mode MVP | 1-10 (22 plans) | 2026-01-20 |
-| v1.1 | Execution Isolation & Failure Learnings | 11-12 (TBD plans) | In Progress |
+| v1.1 | Execution Isolation & Failure Learnings | 11-12 (4 plans) | 2026-01-21 |
 
 ## v1.1 Phase Summary
 

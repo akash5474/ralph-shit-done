@@ -20,10 +20,10 @@ Requirements for v1.1 release. Each maps to roadmap phases.
 
 ### Failure Learnings
 
-- [ ] **FAIL-01**: When a task fails, extract the failure reason from Claude's output
-- [ ] **FAIL-02**: Structure failure context into a learnings format (what failed, why, what was attempted)
-- [ ] **FAIL-03**: Append failure learnings to AGENTS.md under a "Failure Context" section
-- [ ] **FAIL-04**: Next retry attempt includes failure learnings in its prompt context
+- [x] **FAIL-01**: When a task fails, extract the failure reason from Claude's output
+- [x] **FAIL-02**: Structure failure context into a learnings format (what failed, why, what was attempted)
+- [x] **FAIL-03**: Append failure learnings to AGENTS.md under a "Failure Context" section
+- [x] **FAIL-04**: Next retry attempt includes failure learnings in its prompt context
 
 ## v2+ Requirements
 
@@ -75,10 +75,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXEC-02 | Phase 11 | Complete |
 | EXEC-03 | Phase 11 | Complete |
 | EXEC-04 | Phase 11 | Complete |
-| FAIL-01 | Phase 12 | Pending |
-| FAIL-02 | Phase 12 | Pending |
-| FAIL-03 | Phase 12 | Pending |
-| FAIL-04 | Phase 12 | Pending |
+| FAIL-01 | Phase 12 | Complete |
+| FAIL-02 | Phase 12 | Complete |
+| FAIL-03 | Phase 12 | Complete |
+| FAIL-04 | Phase 12 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 8 total
@@ -87,4 +87,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-19*
-*Last updated: 2026-01-21 - Phase 11 requirements complete*
+*Last updated: 2026-01-21 - v1.1 complete (all requirements shipped)*

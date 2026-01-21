@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## v1.1 Phases
 
 - [x] **Phase 11: Terminal Launcher** - Platform-aware terminal spawning for execution isolation
-- [ ] **Phase 12: Failure Learnings** - Extract, structure, and propagate failure context across retries
+- [x] **Phase 12: Failure Learnings** - Extract, structure, and propagate failure context across retries
 
 ---
 
@@ -225,8 +225,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — Failure extraction and storage functions in learnings.sh
-- [ ] 12-02-PLAN.md — Integration into ralph.sh execution loop
+- [x] 12-01-PLAN.md — Failure extraction and storage functions in learnings.sh
+- [x] 12-02-PLAN.md — Integration into ralph.sh execution loop
 
 ---
 
@@ -248,7 +248,7 @@ Phases execute in numeric order: 1 -> 2 -> ... -> 10 -> 11 -> 12
 | 9. Mode Selection & Base Commands | 2/2 | Complete | 2026-01-20 |
 | 10. Execution Commands | 3/3 | Complete | 2026-01-20 |
 | 11. Terminal Launcher | 2/2 | Complete | 2026-01-21 |
-| 12. Failure Learnings | 0/2 | Pending | - |
+| 12. Failure Learnings | 2/2 | Complete | 2026-01-21 |
 
 ---
 *Roadmap created: 2026-01-19*
