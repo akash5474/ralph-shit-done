@@ -226,7 +226,7 @@ Continue to Step 4 (fresh execution).
 </step>
 
 <step name="execute">
-**Step 4: Start Execution**
+**Step 4: Launch in New Terminal**
 
 Display launch confirmation with settings summary:
 
@@ -243,97 +243,73 @@ Settings:
   - Circuit breaker: {CIRCUIT_BREAKER_THRESHOLD} failures
   - Stuck threshold: {STUCK_THRESHOLD} retries
 
-Starting autonomous execution...
-Press Ctrl+C at any time for graceful stop.
+Launching ralph.sh in new terminal window...
 ==========================================
 ```
 
-Execute ralph.sh via Bash tool:
+**Launch ralph.sh in a new terminal window:**
+
+Use the terminal-launcher module to spawn ralph.sh in a detached terminal:
 
 ```bash
-./bin/ralph.sh 2>&1
+node bin/lib/terminal-launcher.js
 ```
 
-Capture the exit status for Step 5 handling.
+Alternatively via Node.js in Bash tool:
+```bash
+node -e "const launcher = require('./bin/lib/terminal-launcher.js'); const result = launcher.launchTerminal(); process.exit(result.success ? 0 : 1);"
+```
 
-**Exit codes from ralph.sh:**
-- 0 = COMPLETED (all plans done, tests pass)
-- 1 = STUCK (same task failed STUCK_THRESHOLD times)
-- 2 = ABORTED (user chose to abort or budget cap reached)
-- 3 = INTERRUPTED (user pressed Ctrl+C, graceful stop)
+**Capture the result:**
+- If exit code 0: Terminal launched successfully, proceed to Step 5 success
+- If exit code 1: Terminal launch failed, manual instructions already displayed
+
+**Important:** Do NOT wait for ralph.sh to complete. The terminal-launcher spawns a detached process and returns immediately. This is the execution isolation feature.
 </step>
 
 <step name="completion">
-**Step 5: Handle Completion**
+**Step 5: Handle Launch Result**
 
-Parse the exit status from ralph.sh and display appropriate completion message.
+Parse the result from terminal-launcher and display appropriate message.
 
-**Exit 0 - COMPLETED:**
+**Success (exit 0 from launcher):**
 ```
 ==========================================
- GSD AUTOPILOT - COMPLETE
+ GSD AUTOPILOT - LAUNCHED
 ==========================================
 
-All plans executed successfully!
+Ralph.sh is now running in a new terminal window.
 
-Next steps:
-- Review work in .planning/phases/
-- Run /gsd:progress for summary
-- Run /gsd:complete-milestone when ready
-==========================================
-```
+You can now close this Claude session - execution continues independently.
 
-**Exit 1 - STUCK:**
-```
-==========================================
- GSD AUTOPILOT - STUCK
-==========================================
+To monitor progress:
+  - Watch the new terminal window
+  - Check .planning/STATE.md for status
+  - Run /gsd:progress after completion
 
-Execution stuck at: {task}
-Reason: Same task failed {STUCK_THRESHOLD} times
-
-Options:
-- Resume: /gsd:autopilot (will offer to resume)
-- Debug:  Review .planning/ralph.log for failure details
-- Skip:   Manually mark task complete in STATE.md, then resume
+When ralph.sh completes:
+  - Review work in .planning/phases/
+  - Run /gsd:complete-milestone when ready
 ==========================================
 ```
 
-**Exit 2 - ABORTED:**
+**Failure (exit 1 from launcher):**
 ```
 ==========================================
- GSD AUTOPILOT - ABORTED
+ GSD AUTOPILOT - MANUAL LAUNCH REQUIRED
 ==========================================
 
-Execution aborted.
-Position saved: {task}
+Could not auto-launch terminal window.
+Manual instructions were displayed above.
 
-All progress up to this point has been committed.
-
-Resume: /gsd:autopilot
-==========================================
-```
-
-**Exit 3 - INTERRUPTED:**
-```
-==========================================
- GSD AUTOPILOT - INTERRUPTED
-==========================================
-
-Graceful stop completed.
-All progress committed.
-
-Position: {task}
-Completed: {N} iterations
-
-To continue from where you left off:
-  /gsd:autopilot
-
-The command will detect the incomplete run and offer to resume.
+After starting ralph.sh manually:
+  - Watch the terminal for progress
+  - Check .planning/STATE.md for status
+  - Run /gsd:progress after completion
 ==========================================
 ```
 
-Return the exit status code so the calling context (Claude) can reference it.
+**Note:** Unlike the previous inline execution, we no longer handle STUCK/ABORTED/INTERRUPTED exit codes here. Those conditions are now handled by ralph.sh in its own terminal window. The autopilot command simply launches and exits.
 </step>
 
 </process>
@@ -345,6 +321,7 @@ Return the exit status code so the calling context (Claude) can reference it.
 - [ ] Plan detection checks all phases have plans
 - [ ] Planning triggered via plan-milestone-all when plans missing
 - [ ] Resume detection checks STATE.md for incomplete runs
-- [ ] Execution via ralph.sh with all exit status handling
-- [ ] Clear completion/failure/interrupt messages with next steps
+- [ ] Terminal launcher spawns ralph.sh in new window
+- [ ] Autopilot returns immediately after launch (does not wait)
+- [ ] Manual instructions shown if terminal launch fails
 </success_criteria>
