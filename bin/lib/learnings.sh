@@ -122,6 +122,19 @@ get_learnings_for_phase() {
         }" "$AGENTS_FILE")
     fi
 
+    # Extract failure context for this phase from ## Failure Context section
+    local failure_context
+    if [[ -n "$phase_num" ]]; then
+        # First find the Failure Context section, then extract the phase subsection
+        failure_context=$(awk -v phase="$phase_num" '
+            /^## Failure Context/ { in_failure = 1; next }
+            /^## / && in_failure { in_failure = 0 }
+            in_failure && $0 ~ "^### Phase " phase ":" { in_phase = 1; next }
+            in_failure && /^### Phase/ && in_phase { in_phase = 0 }
+            in_failure && in_phase { print }
+        ' "$AGENTS_FILE")
+    fi
+
     # Output combined learnings
     local output=""
 
@@ -150,6 +163,16 @@ get_learnings_for_phase() {
         output+="Phase ${phase_num} specific:"
         output+=$'\n'
         output+="$phase_specific"
+    fi
+
+    # Add failure context if any (helps retries avoid repeated mistakes)
+    if [[ -n "$failure_context" && -n "$(echo "$failure_context" | tr -d '[:space:]')" ]]; then
+        if [[ -n "$output" ]]; then
+            output+=$'\n'
+        fi
+        output+="Failure Context (avoid repeating these mistakes):"
+        output+=$'\n'
+        output+="$failure_context"
     fi
 
     echo "$output"
