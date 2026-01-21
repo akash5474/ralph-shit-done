@@ -341,8 +341,9 @@ function launchProgressWatcher() {
   }
 
   try {
-    // Use $HOME expansion for the installed location
-    const watcherPath = '$HOME/.claude/get-shit-done/bin/lib/progress-watcher.js';
+    // Resolve absolute path, then convert to Git Bash format on Windows
+    const watcherPathAbs = path.join(os.homedir(), '.claude', 'get-shit-done', 'bin', 'lib', 'progress-watcher.js');
+    const watcherPath = process.platform === 'win32' ? toGitBashPath(watcherPathAbs) : watcherPathAbs;
     const subprocess = terminal.nodeLauncher(watcherPath, 'GSD Progress');
     subprocess.unref(); // Critical: allow parent to exit independently
 
@@ -385,8 +386,9 @@ function launchTerminal() {
   }
 
   try {
-    // Use $HOME expansion inside bash to avoid Windows/Unix path issues
-    const ralphPath = '$HOME/.claude/get-shit-done/bin/ralph.sh';
+    // Resolve absolute path, then convert to Git Bash format on Windows
+    const ralphPathAbs = path.join(os.homedir(), '.claude', 'get-shit-done', 'bin', 'ralph.sh');
+    const ralphPath = process.platform === 'win32' ? toGitBashPath(ralphPathAbs) : ralphPathAbs;
     const subprocess = terminal.launcher(ralphPath, 'GSD Ralph');
     subprocess.unref(); // Critical: allow parent to exit independently
 
