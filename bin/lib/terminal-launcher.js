@@ -26,6 +26,16 @@ function toGitBashPath(windowsPath) {
   return normalized;
 }
 
+// Convert Git Bash path back to Windows path (/c/Users/... → C:/Users/...)
+function toWindowsPath(gitBashPath) {
+  // Match Git Bash drive pattern like /c/ or /d/
+  const match = gitBashPath.match(/^\/([a-zA-Z])\//);
+  if (match) {
+    return match[1].toUpperCase() + ':' + gitBashPath.slice(2);
+  }
+  return gitBashPath;
+}
+
 // command-exists for checking terminal availability
 let commandExistsSync;
 try {
@@ -126,11 +136,14 @@ function launchPowerShellNode(scriptPath, windowTitle = 'GSD') {
 
 function launchWindowsTerminal(scriptPath, windowTitle = 'GSD') {
   const cwd = process.cwd();
-  const bashCwd = toGitBashPath(cwd);
+  // Convert to Windows path format - wt.exe spawns WSL/native bash, not Git Bash
+  // Both WSL bash and native bash understand Windows paths
+  const winScript = toWindowsPath(scriptPath);
 
   return spawn('wt.exe', [
     '--title', windowTitle,
-    'bash', '-c', `cd "${bashCwd}" && bash "${scriptPath}"`
+    '-d', cwd,
+    'bash', '-c', `bash "${winScript}"`
   ], {
     detached: true,
     stdio: 'ignore',
@@ -141,11 +154,14 @@ function launchWindowsTerminal(scriptPath, windowTitle = 'GSD') {
 
 function launchWindowsTerminalNode(scriptPath, windowTitle = 'GSD') {
   const cwd = process.cwd();
-  const bashCwd = toGitBashPath(cwd);
+  // Convert to Windows path format - wt.exe spawns WSL/native bash, not Git Bash
+  const winScript = toWindowsPath(scriptPath);
+  const winCwd = cwd.replace(/\\/g, '/');
 
   return spawn('wt.exe', [
     '--title', windowTitle,
-    'bash', '-c', `cd "${bashCwd}" && node "${scriptPath}" "${bashCwd}"`
+    '-d', cwd,
+    'bash', '-c', `node "${winScript}" "${winCwd}"`
   ], {
     detached: true,
     stdio: 'ignore',
