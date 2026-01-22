@@ -9,20 +9,20 @@ Requirements for terminal path resolution bug fix. Enables autopilot on Windows 
 
 ### Terminal Detection
 
-- [ ] **TERM-01**: wt.exe launcher checks Git Bash existence before attempting launch
-- [ ] **TERM-02**: Try multiple Git Bash installation locations (standard, x86, user installs)
-- [ ] **TERM-03**: Fall back to cmd.exe when Git Bash not found at any location
+- [x] **TERM-01**: wt.exe launcher checks Git Bash existence before attempting launch
+- [x] **TERM-02**: Try multiple Git Bash installation locations (standard, x86, user installs)
+- [x] **TERM-03**: Fall back to cmd.exe when Git Bash not found at any location
 
 ### Path Resolution
 
-- [ ] **PATH-01**: ralph.sh detects bash environment at runtime (Git Bash, WSL, Cygwin)
-- [ ] **PATH-02**: ralph.sh converts Windows paths using native tools (cygpath, wslpath)
-- [ ] **PATH-03**: Fallback chain tries all path formats when native tools unavailable
+- [x] **PATH-01**: ralph.sh detects bash environment at runtime (Git Bash, WSL, Cygwin)
+- [x] **PATH-02**: ralph.sh converts Windows paths using native tools (cygpath, wslpath)
+- [x] **PATH-03**: Fallback chain tries all path formats when native tools unavailable
 
 ### Error Handling
 
-- [ ] **ERR-01**: Clear error message when no suitable terminal found
-- [ ] **ERR-02**: Manual fallback instructions displayed when all terminal launchers fail
+- [x] **ERR-01**: Clear error message when no suitable terminal found
+- [x] **ERR-02**: Manual fallback instructions displayed when all terminal launchers fail
 
 ## Out of Scope
 
@@ -37,14 +37,14 @@ Requirements for terminal path resolution bug fix. Enables autopilot on Windows 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TERM-01 | Phase 13 | Pending |
-| TERM-02 | Phase 13 | Pending |
-| TERM-03 | Phase 13 | Pending |
-| PATH-01 | Phase 13 | Pending |
-| PATH-02 | Phase 13 | Pending |
-| PATH-03 | Phase 13 | Pending |
-| ERR-01 | Phase 13 | Pending |
-| ERR-02 | Phase 13 | Pending |
+| TERM-01 | Phase 13 | Complete |
+| TERM-02 | Phase 13 | Complete |
+| TERM-03 | Phase 13 | Complete |
+| PATH-01 | Phase 13 | Complete |
+| PATH-02 | Phase 13 | Complete |
+| PATH-03 | Phase 13 | Complete |
+| ERR-01 | Phase 13 | Complete |
+| ERR-02 | Phase 13 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 8 total
@@ -53,4 +53,4 @@ Requirements for terminal path resolution bug fix. Enables autopilot on Windows 
 
 ---
 *Requirements defined: 2026-01-21*
-*Last updated: 2026-01-21 - Roadmap created, traceability confirmed*
+*Last updated: 2026-01-21 - Phase 13 complete, all requirements verified*

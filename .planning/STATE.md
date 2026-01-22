@@ -11,16 +11,16 @@ See: .planning/PROJECT.md (updated 2026-01-21)
 
 Phase: 13 - Terminal Path Resolution Fix
 Plan: 2 of 2 completed
-Status: Phase complete
+Status: Phase verified, milestone ready for audit
 Last activity: 2026-01-21 - Completed 13-02-PLAN.md
 
 Progress: [██████████████████████████████] 100% (v1.2 Phase 13)
 
 ## Next Action
 
-Command: /gsd:ship-milestone v1.2
-Description: Ship v1.2 Terminal Path Resolution milestone
-Read: .planning/phases/13-terminal-path-resolution/13-02-SUMMARY.md for completion details
+Command: /gsd:audit-milestone
+Description: Audit v1.2 milestone completion before archiving
+Read: .planning/ROADMAP.md for milestone details
 
 ## Milestone History
 

@@ -10,13 +10,14 @@
 
 ### Phase 13: Terminal Path Resolution Fix
 **Goal:** Autopilot works on Windows regardless of terminal configuration
-**Status:** Planned
+**Status:** Complete ✓
+**Completed:** 2026-01-21
 **Depends on:** None (standalone bug fix)
 **Plans:** 2 plans
 
 Plans:
-- [ ] 13-01-PLAN.md — Terminal launcher hardening (findGitBash, cmd.exe fallback)
-- [ ] 13-02-PLAN.md — Runtime path resolution (detect_bash_env, resolve_win_path)
+- [x] 13-01-PLAN.md — Terminal launcher hardening (findGitBash, cmd.exe fallback)
+- [x] 13-02-PLAN.md — Runtime path resolution (detect_bash_env, resolve_win_path)
 
 **Requirements:**
 - TERM-01: wt.exe launcher checks Git Bash existence before attempting launch
@@ -60,14 +61,14 @@ Plans:
 
 | Requirement | Phase | Plan | Status |
 |-------------|-------|------|--------|
-| TERM-01 | Phase 13 | 13-01 | Pending |
-| TERM-02 | Phase 13 | 13-01 | Pending |
-| TERM-03 | Phase 13 | 13-01 | Pending |
-| PATH-01 | Phase 13 | 13-02 | Pending |
-| PATH-02 | Phase 13 | 13-02 | Pending |
-| PATH-03 | Phase 13 | 13-02 | Pending |
-| ERR-01 | Phase 13 | 13-01 | Pending |
-| ERR-02 | Phase 13 | 13-01 | Pending |
+| TERM-01 | Phase 13 | 13-01 | Complete |
+| TERM-02 | Phase 13 | 13-01 | Complete |
+| TERM-03 | Phase 13 | 13-01 | Complete |
+| PATH-01 | Phase 13 | 13-02 | Complete |
+| PATH-02 | Phase 13 | 13-02 | Complete |
+| PATH-03 | Phase 13 | 13-02 | Complete |
+| ERR-01 | Phase 13 | 13-01 | Complete |
+| ERR-02 | Phase 13 | 13-01 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 8 total
@@ -78,3 +79,4 @@ Plans:
 *Created: 2026-01-21*
 *Milestone: v1.2 Terminal Path Resolution*
 *Plans created: 2026-01-21*
+*Phase 13 complete: 2026-01-21*
