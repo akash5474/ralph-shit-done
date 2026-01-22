@@ -47,7 +47,8 @@ function parseState(stateContent) {
     plan: '',
     status: '',
     progress: '',
-    lastActivity: ''
+    lastActivity: '',
+    nextTask: ''
   };
 
   for (let i = 0; i < lines.length; i++) {
@@ -59,10 +60,21 @@ function parseState(stateContent) {
       result.plan = line.substring(5).trim();
     } else if (line.startsWith('Status:')) {
       result.status = line.substring(7).trim();
+      // Extract "ready for XX-YY" pattern to show next task
+      const readyMatch = result.status.match(/ready for (\d{2}-\d{2})/);
+      if (readyMatch) {
+        result.nextTask = readyMatch[1];
+      }
     } else if (line.startsWith('Last activity:')) {
       result.lastActivity = line.substring(14).trim();
     } else if (line.startsWith('Progress:')) {
       result.progress = line.substring(9).trim();
+    } else if (line.startsWith('Description:')) {
+      // Next Action section has Description with task ID
+      const descMatch = line.match(/(\d{2}-\d{2})/);
+      if (descMatch && !result.nextTask) {
+        result.nextTask = descMatch[1];
+      }
     }
   }
 
@@ -139,8 +151,10 @@ function displayProgress(stateFile, logFile, isPaused) {
 
       console.log(`${COLORS.BOLD}Current Position:${COLORS.RESET}`);
       console.log(`  Phase:  ${state.phase}`);
-      console.log(`  Plan:   ${state.plan}`);
       console.log(`  Status: ${state.status}`);
+      if (state.nextTask) {
+        console.log(`  ${COLORS.YELLOW}Next:   ${state.nextTask}${COLORS.RESET}`);
+      }
       if (state.lastActivity) {
         console.log(`  Last:   ${COLORS.DIM}${state.lastActivity}${COLORS.RESET}`);
       }
