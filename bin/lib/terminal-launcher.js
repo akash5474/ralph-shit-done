@@ -134,13 +134,15 @@ function launchPowerShellNode(scriptPath, windowTitle = 'GSD') {
 
 function launchWindowsTerminal(scriptPath, windowTitle = 'GSD') {
   const cwd = process.cwd();
-  // wt.exe typically spawns Git Bash on Windows, which needs /c/Users/... format
   const bashScript = toGitBashPath(scriptPath);
   const bashCwd = toGitBashPath(cwd);
 
+  // Use Git Bash explicitly via its standard install path
+  const gitBashPath = 'C:\\Program Files\\Git\\bin\\bash.exe';
+
   return spawn('wt.exe', [
     '--title', windowTitle,
-    'bash', '--login', '-c', `cd "${bashCwd}" && bash "${bashScript}"`
+    gitBashPath, '--login', '-c', `cd "${bashCwd}" && bash "${bashScript}"`
   ], {
     detached: true,
     stdio: 'ignore',
@@ -151,14 +153,15 @@ function launchWindowsTerminal(scriptPath, windowTitle = 'GSD') {
 
 function launchWindowsTerminalNode(scriptPath, windowTitle = 'GSD') {
   const cwd = process.cwd();
-  // wt.exe typically spawns Git Bash on Windows, which needs /c/Users/... format
-  // Use --login to ensure node is in PATH
   const bashScript = toGitBashPath(scriptPath);
   const bashCwd = toGitBashPath(cwd);
 
+  // Use Git Bash explicitly via its standard install path
+  const gitBashPath = 'C:\\Program Files\\Git\\bin\\bash.exe';
+
   return spawn('wt.exe', [
     '--title', windowTitle,
-    'bash', '--login', '-c', `cd "${bashCwd}" && node "${bashScript}" "${bashCwd}"`
+    gitBashPath, '--login', '-c', `cd "${bashCwd}" && node "${bashScript}" "${bashCwd}"`
   ], {
     detached: true,
     stdio: 'ignore',
