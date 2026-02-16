@@ -146,7 +146,7 @@ A detailed reference for workflows, troubleshooting, and configuration. For quic
 | `/gsd:discuss-phase [N]` | Capture implementation decisions | Before planning, to shape how it gets built |
 | `/gsd:plan-phase [N]` | Research + plan + verify | Before executing a phase |
 | `/gsd:execute-phase <N>` | Execute all plans in parallel waves | After planning is complete |
-| `/gsd:verify-work [N]` | Manual UAT with auto-diagnosis | After execution completes |
+| `/gsd:verify-work [N] [--auto]` | UAT with auto-diagnosis. `--auto`: Claude tests programmatically | After execution completes |
 | `/gsd:audit-milestone` | Verify milestone met its definition of done | Before completing milestone |
 | `/gsd:complete-milestone` | Archive milestone, tag release | All phases verified |
 | `/gsd:new-milestone [name]` | Start next version cycle | After completing a milestone |

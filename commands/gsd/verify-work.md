@@ -1,7 +1,7 @@
 ---
 name: gsd:verify-work
 description: Validate built features through conversational UAT
-argument-hint: "[phase number, e.g., '4']"
+argument-hint: "[phase number, e.g., '4'] [--auto]"
 allowed-tools:
   - Read
   - Bash
@@ -28,6 +28,7 @@ Output: {phase_num}-UAT.md tracking all test results. If issues found: diagnosed
 Phase: $ARGUMENTS (optional)
 - If provided: Test specific phase (e.g., "4")
 - If not provided: Check for active sessions or prompt for phase
+- If `--auto` flag present: Claude verifies tests programmatically instead of presenting to user
 
 @.planning/STATE.md
 @.planning/ROADMAP.md
