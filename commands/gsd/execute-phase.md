@@ -219,11 +219,18 @@ Phase: $ARGUMENTS
       - Extract challenges (title, severity, concern, evidence, affected)
       - Extract convergence recommendation (CONTINUE/CONVERGE)
 
-   4. **Check convergence:** If adversary recommends CONVERGE and ROUND > 1:
-      - Set `CONVERGED=true`
-      - Break
+   4. **Orchestrator convergence decision** (adversary informs, orchestrator decides):
 
-   5. **Handle challenges** (if ROUND < EFFECTIVE_MAX_ROUNDS):
+      Evaluate challenges by severity to determine loop continuation:
+
+      - **BLOCKING challenges exist** → always continue (re-spawn verifier in step 5)
+      - **MAJOR challenges only** → continue only if challenges target **correctness, completeness, or logic errors**. Exit with `CONVERGED=true` if all MAJOR challenges target methodology, format, or style preferences.
+      - **MINOR challenges only** → set `CONVERGED=true`, break. Note challenges in summary.
+      - **No challenges** → set `CONVERGED=true`, break.
+
+      Also accept adversary CONVERGE recommendation: if adversary recommends CONVERGE and ROUND > 1, set `CONVERGED=true` and break (adversary agreement accelerates exit).
+
+   5. **Handle challenges** (if not CONVERGED and ROUND < EFFECTIVE_MAX_ROUNDS):
 
       **If BLOCKING challenges exist — Verifier-as-defender pattern:**
 
@@ -266,7 +273,9 @@ Phase: $ARGUMENTS
       - Store `PREV_CHALLENGES` = adversary's full challenge output from this round
       - Set `VERIFICATION_REVISED=true`
 
-      **If MAJOR/MINOR only (no BLOCKING):** At Claude's discretion, may note without re-spawning verifier. Build defense text noting the rationale. Store `PREV_CHALLENGES`.
+      **If MAJOR only (no BLOCKING):** The orchestrator already determined in step 4 that these are substantive (not methodology/style). Re-spawn verifier if the concerns are specific enough to re-examine, otherwise build defense text noting the rationale. Store `PREV_CHALLENGES`.
+
+      **If MINOR only:** Should not reach here — step 4 exits the loop. If reached due to edge case, note challenges and break.
 
    6. Increment ROUND
 

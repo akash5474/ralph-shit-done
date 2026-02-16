@@ -610,11 +610,18 @@ Task(prompt="First, read ~/.claude/agents/gsd-adversary.md for your role and ins
 - Extract challenges (title, severity, concern, evidence, affected)
 - Extract convergence recommendation (CONTINUE/CONVERGE)
 
-**4. Check convergence:** If adversary recommends CONVERGE and ROUND > 1:
-- Set `CONVERGED=true`
-- Break
+**4. Orchestrator convergence decision** (adversary informs, orchestrator decides):
 
-**5. Handle challenges** (if ROUND < EFFECTIVE_MAX_ROUNDS):
+Evaluate challenges by severity to determine loop continuation:
+
+- **BLOCKING challenges exist** → always continue (re-spawn planner in step 5)
+- **MAJOR challenges only** → continue only if challenges target **correctness, completeness, or logic errors**. Exit with `CONVERGED=true` if all MAJOR challenges target methodology, format, or style preferences.
+- **MINOR challenges only** → set `CONVERGED=true`, break. Note challenges in summary.
+- **No challenges** → set `CONVERGED=true`, break.
+
+Also accept adversary CONVERGE recommendation: if adversary recommends CONVERGE and ROUND > 1, set `CONVERGED=true` and break (adversary agreement accelerates exit).
+
+**5. Handle challenges** (if not CONVERGED and ROUND < EFFECTIVE_MAX_ROUNDS):
 
 **If BLOCKING challenges exist — Planner-as-defender pattern:**
 
@@ -658,7 +665,9 @@ After planner returns:
 - Set `PLAN_REVISED=true`, `PLANS_REVISED=true`
 - Update challenge counts: `TOTAL_ADDRESSED += addressed count`
 
-**If MAJOR/MINOR only (no BLOCKING):** At Claude's discretion, may note without spawning planner. Build defense text noting the rationale for not revising. Store `PREV_CHALLENGES`. Increment `TOTAL_NOTED`.
+**If MAJOR only (no BLOCKING):** The orchestrator already determined in step 4 that these are substantive (not methodology/style). Re-spawn planner if the concerns are specific enough to revise, otherwise build defense text noting the rationale. Store `PREV_CHALLENGES`. Increment `TOTAL_NOTED`.
+
+**If MINOR only:** Should not reach here — step 4 exits the loop. If reached due to edge case, note challenges and break.
 
 **6.** Increment ROUND
 

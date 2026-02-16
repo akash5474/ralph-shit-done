@@ -33,10 +33,9 @@ See `.planning/milestones/v2.1-ROADMAP.md` for v2.1-specific decisions.
 
 ### Pending Todos
 
-3 pending todo(s) in `.planning/todos/pending/`:
+2 pending todo(s) in `.planning/todos/pending/`:
 - **Add --auto flag to verify phase** (area: commands)
 - **Automate full phase lifecycle with agents** (area: commands)
-- **Orchestrator-driven debate loop exit** (area: commands)
 
 ### Blockers/Concerns
 
