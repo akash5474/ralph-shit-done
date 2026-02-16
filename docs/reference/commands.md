@@ -230,16 +230,25 @@ Execute all plans in a phase with wave-based parallelization.
 
 ---
 
-### `/gsd:verify-work [phase]`
-Validate built features through conversational user acceptance testing.
+### `/gsd:verify-work [phase] [--auto]`
+Validate built features through user acceptance testing.
 
 **Arguments:** Optional — phase number (auto-detects if not provided)
 
+**Flags:**
+- `--auto` — Claude verifies tests programmatically instead of asking the user. Detects project type (web app, CLI, API, library) and uses appropriate mechanisms (Playwright, shell commands, HTTP requests, file inspection). Escalates to the user only for truly manual steps (credentials, subjective checks, external access).
+
 **Creates:** `.planning/phases/{NN}-{name}/{phase}-UAT.md`
 
-**Interaction:**
+**Manual mode (default):**
 - Claude: "User can X. Does this work?"
 - User: "yes" / "no, because..." / "next"
+
+**Auto mode (`--auto`):**
+- Claude detects project type and verification mechanisms
+- Runs each test programmatically (Playwright, CLI, HTTP, etc.)
+- Escalates to user only when manual intervention is required
+- Records `verified_by: auto | manual` per test
 
 **If issues found:**
 - Spawns parallel debug agents
