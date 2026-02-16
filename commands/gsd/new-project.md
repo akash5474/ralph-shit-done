@@ -973,14 +973,21 @@ While ROUND <= EFFECTIVE_MAX_ROUNDS AND not CONVERGED:
    - Extract challenges (title, severity, concern, evidence, affected)
    - Extract convergence recommendation (CONTINUE/CONVERGE)
 
-4. **Check convergence:** If adversary recommends CONVERGE and ROUND > 1:
-   - Set `CONVERGED=true`
-   - Break
+4. **Orchestrator convergence decision** (adversary informs, orchestrator decides):
 
-5. **Generate defense** (if ROUND < EFFECTIVE_MAX_ROUNDS):
+   Evaluate challenges by severity to determine loop continuation:
+
+   - **BLOCKING challenges exist** → always continue (revise artifact in step 5)
+   - **MAJOR challenges only** → continue only if challenges target **correctness, completeness, or logic errors**. Exit with `CONVERGED=true` if all MAJOR challenges target methodology, format, or style preferences.
+   - **MINOR challenges only** → set `CONVERGED=true`, break. Note challenges in summary.
+   - **No challenges** → set `CONVERGED=true`, break.
+
+   Also accept adversary CONVERGE recommendation: if adversary recommends CONVERGE and ROUND > 1, set `CONVERGED=true` and break (adversary agreement accelerates exit).
+
+5. **Generate defense** (if not CONVERGED and ROUND < EFFECTIVE_MAX_ROUNDS):
    - For **BLOCKING** challenges: revise REQUIREMENTS.md on disk using Edit tool. Set `ARTIFACT_REVISED=true`.
-   - For **MAJOR** challenges: at Claude's discretion — may revise or note with rationale.
-   - For **MINOR** challenges: typically note without revision.
+   - For **MAJOR** challenges (substantive only — methodology/style already filtered in step 4): revise if specific enough, otherwise note with rationale.
+   - For **MINOR** challenges: should not reach here — step 4 exits. Note if reached.
    - Build `DEFENSE` text describing:
      - Which challenges were addressed and what changed in the artifact
      - Which challenges were rejected and why (with evidence from PROJECT.md constraints)
@@ -1239,14 +1246,21 @@ While ROUND <= EFFECTIVE_MAX_ROUNDS AND not CONVERGED:
    - Extract challenges (title, severity, concern, evidence, affected)
    - Extract convergence recommendation (CONTINUE/CONVERGE)
 
-4. **Check convergence:** If adversary recommends CONVERGE and ROUND > 1:
-   - Set `CONVERGED=true`
-   - Break
+4. **Orchestrator convergence decision** (adversary informs, orchestrator decides):
 
-5. **Generate defense** (if ROUND < EFFECTIVE_MAX_ROUNDS):
+   Evaluate challenges by severity to determine loop continuation:
+
+   - **BLOCKING challenges exist** → always continue (revise artifact in step 5)
+   - **MAJOR challenges only** → continue only if challenges target **correctness, completeness, or logic errors**. Exit with `CONVERGED=true` if all MAJOR challenges target methodology, format, or style preferences.
+   - **MINOR challenges only** → set `CONVERGED=true`, break. Note challenges in summary.
+   - **No challenges** → set `CONVERGED=true`, break.
+
+   Also accept adversary CONVERGE recommendation: if adversary recommends CONVERGE and ROUND > 1, set `CONVERGED=true` and break (adversary agreement accelerates exit).
+
+5. **Generate defense** (if not CONVERGED and ROUND < EFFECTIVE_MAX_ROUNDS):
    - For **BLOCKING** challenges: revise ROADMAP.md on disk using Edit tool. Set `ARTIFACT_REVISED=true`.
-   - For **MAJOR** challenges: at Claude's discretion — may revise or note with rationale.
-   - For **MINOR** challenges: typically note without revision.
+   - For **MAJOR** challenges (substantive only — methodology/style already filtered in step 4): revise if specific enough, otherwise note with rationale.
+   - For **MINOR** challenges: should not reach here — step 4 exits. Note if reached.
    - Build `DEFENSE` text describing:
      - Which challenges were addressed and what changed in the artifact
      - Which challenges were rejected and why (with evidence from PROJECT.md constraints)
