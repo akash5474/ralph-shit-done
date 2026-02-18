@@ -318,16 +318,112 @@ grep "^status:" "$PHASE_DIR"/*-VERIFICATION.md | cut -d: -f2 | tr -d ' '
 | Status | Action |
 |--------|--------|
 | `passed` | → update_roadmap |
-| `human_needed` | Present items for human testing, get approval or feedback |
+| `human_needed` | Auto-verify items first, then present only truly human-required items |
 | `gaps_found` | Present gap summary, offer `/gsd:plan-phase {phase} --gaps` |
 
-**If human_needed:**
+**If human_needed — Auto-Verification Sub-Step:**
+
+Before presenting items to the user, the orchestrator attempts to programmatically verify as many `human_needed` items as possible. Many items flagged by the verifier (file existence, CLI output, import checks) can be auto-verified — only truly human-only items should require manual verification.
+
+**1. Parse human_verification items from VERIFICATION.md frontmatter:**
+
+```bash
+# Extract the human_verification section from VERIFICATION.md frontmatter
+# Each item has: test, expected, why_human
 ```
-## ✓ Phase {X}: {Name} — Human Verification Required
 
-All automated checks passed. {N} items need human testing:
+The verifier outputs structured items:
+```yaml
+human_verification:
+  - test: "What to do"
+    expected: "What should happen"
+    why_human: "Why can't verify programmatically"
+```
 
-{From VERIFICATION.md human_verification section}
+**2. Classify each item by its `why_human` field:**
+
+Check the `why_human` text against these signal sets to determine if auto-verification is possible:
+
+**Auto-verifiable signals** (attempt programmatic check):
+- Contains "file", "exists", "content" → check file existence/content with Read/Grep
+- Contains "CLI", "command", "output", "runs" → execute command and check output
+- Contains "import", "export", "module" → grep for import/export patterns
+- Contains "endpoint", "route", "API", "returns" → curl/fetch and check response
+- Contains "build", "compile", "lint" → run build/lint command
+
+**Truly human-only signals** (skip auto-verification):
+- Contains "visual", "appearance", "look", "style", "layout", "design"
+- Contains "UX", "feel", "intuitive", "usability", "flow"
+- Contains "real-time", "animation", "transition", "responsive"
+- Contains "external service", "third-party", "browser"
+- Contains "subjective", "preference", "judgment"
+
+**Default:** If `why_human` doesn't match either signal set, keep as human-needed (conservative).
+
+**3. For each auto-verifiable item, attempt verification:**
+
+Use the `test` and `expected` fields to construct a programmatic check:
+
+```bash
+# Example: why_human contains "file" or "exists"
+# → Use Read tool to check file existence, Grep to check content
+
+# Example: why_human contains "CLI" or "command"
+# → Run the command in Bash, check output against expected
+
+# Example: why_human contains "import" or "export"
+# → Grep for import/export patterns in source files
+
+# Example: why_human contains "endpoint" or "route"
+# → If server can be started, curl the endpoint and check response
+# → If not, grep route definitions and handler implementations
+
+# Example: why_human contains "build" or "compile"
+# → Run the build/lint command and check exit code
+```
+
+Record each result as `auto_passed` (check succeeded) or `auto_failed` (check did not match expected).
+
+**4. Triage results into three buckets:**
+
+- `auto_passed`: Items that were auto-verified successfully — report as evidence but do not require human action
+- `auto_failed`: Items that failed auto-verification — these become gaps, not human items
+- `still_needs_human`: Items whose `why_human` matched human-only signals (or matched neither set)
+
+**5. Determine final status based on triage:**
+
+| still_needs_human | auto_failed | Final Status |
+|-------------------|-------------|--------------|
+| empty | empty | Escalate to `passed` → route to `update_roadmap` |
+| empty | has items | Treat as `gaps_found` → route to gap closure |
+| has items | empty or has items | Present reduced list to user (see step 6) |
+
+**6. Present the reduced verification request to the user:**
+
+If ALL items auto-verified (no `still_needs_human` and no `auto_failed`): skip human presentation entirely, flow to `update_roadmap` (same as `passed` status).
+
+If `still_needs_human` is empty but `auto_failed` has items: route to the `gaps_found` handler below.
+
+Otherwise, present the reduced list:
+
+```
+## Phase {X}: {Name} — Human Verification Required
+
+{If auto_passed items exist:}
+### Auto-Verified ({N} items passed programmatic checks)
+| # | Test | Evidence |
+|---|------|----------|
+| 1 | {test description} | {what the auto-check found} |
+
+{If auto_failed items exist:}
+### Auto-Verification Failures ({N} items)
+| # | Test | Expected | Actual |
+|---|------|----------|--------|
+| 1 | {test description} | {expected} | {what was found instead} |
+These items will route to gap closure after human verification completes.
+
+### Human Testing Required ({M} items)
+{Only the still_needs_human items from VERIFICATION.md}
 
 "approved" → continue | Report issues → gap closure
 ```

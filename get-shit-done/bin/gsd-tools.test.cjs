@@ -2344,3 +2344,59 @@ describe('scaffold command', () => {
     assert.strictEqual(output.reason, 'already_exists');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// classifyError unit tests (all 3 adapters)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const codexAdapter = require('./adapters/codex.cjs');
+const geminiAdapter = require('./adapters/gemini.cjs');
+const opencodeAdapter = require('./adapters/opencode.cjs');
+
+describe('classifyError', () => {
+  const adapters = [
+    { name: 'codex adapter', mod: codexAdapter },
+    { name: 'gemini adapter', mod: geminiAdapter },
+    { name: 'opencode adapter', mod: opencodeAdapter },
+  ];
+
+  for (const { name, mod } of adapters) {
+    describe(name, () => {
+      test('exit 127 sync shape returns NOT_FOUND', () => {
+        assert.strictEqual(mod.classifyError({ status: 127, signal: null }), 'NOT_FOUND');
+      });
+
+      test('exit 127 async shape returns NOT_FOUND', () => {
+        assert.strictEqual(mod.classifyError({ code: 127, signal: null }), 'NOT_FOUND');
+      });
+
+      test('exit 126 sync shape returns PERMISSION', () => {
+        assert.strictEqual(mod.classifyError({ status: 126, signal: null }), 'PERMISSION');
+      });
+
+      test('exit 126 async shape returns PERMISSION', () => {
+        assert.strictEqual(mod.classifyError({ code: 126, signal: null }), 'PERMISSION');
+      });
+
+      test('SIGTERM async shape returns TIMEOUT', () => {
+        assert.strictEqual(mod.classifyError({ signal: 'SIGTERM', code: null }), 'TIMEOUT');
+      });
+
+      test('SIGTERM sync shape returns TIMEOUT', () => {
+        assert.strictEqual(mod.classifyError({ signal: 'SIGTERM', status: null }), 'TIMEOUT');
+      });
+
+      test('ENOENT string code returns NOT_FOUND', () => {
+        assert.strictEqual(mod.classifyError({ code: 'ENOENT', signal: null }), 'NOT_FOUND');
+      });
+
+      test('other exit code sync shape returns EXIT_ERROR', () => {
+        assert.strictEqual(mod.classifyError({ status: 1, signal: null }), 'EXIT_ERROR');
+      });
+
+      test('other exit code async shape returns EXIT_ERROR', () => {
+        assert.strictEqual(mod.classifyError({ code: 42, signal: null }), 'EXIT_ERROR');
+      });
+    });
+  }
+});
