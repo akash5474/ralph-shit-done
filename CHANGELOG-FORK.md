@@ -65,3 +65,7 @@
 ### Added
 - User-level default settings via `~/.gsd/defaults.json` — set GSD defaults across all projects
 - Per-agent model overrides — customize which Claude model each agent uses
+
+---
+
+## [2.0.0] - 2025-01-31 (Fork Release)
