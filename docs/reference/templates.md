@@ -245,6 +245,7 @@ User decisions for a phase.
 
 **Sections:**
 - **Decisions** — Locked user choices
+- **Claude's Discretion** — Areas for recommendations
 - **Deferred Ideas** — Out of scope for now
 
 ---

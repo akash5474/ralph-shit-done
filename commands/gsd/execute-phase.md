@@ -100,148 +100,14 @@ Context files are resolved inside the workflow via `gsd-tools init execute-phase
 7. **Verify phase goal**
    Check config: `WORKFLOW_VERIFIER=$(cat .planning/config.json 2>/dev/null | grep -o '"verifier"[[:space:]]*:[[:space:]]*[^,}]*' | grep -o 'true\|false' || echo "true")`
 
-   **If `workflow.verifier` is `false`:** Skip to step 8 (treat as passed). This skips verification, co-planner review, and adversary review, since there is no VERIFICATION.md to review or challenge.
+   **If `workflow.verifier` is `false`:** Skip to step 8 (treat as passed). This skips both verification and adversary review, since there is no VERIFICATION.md to challenge.
 
    **Otherwise:**
    - Spawn `gsd-verifier` subagent with phase directory and goal
    - Verifier checks must_haves against actual codebase (not SUMMARY claims)
    - Creates VERIFICATION.md with detailed report
 
-   Continue to step 7.3 (co-planner review). Status routing happens after adversary review.
-
-7.3. **Co-Planner Review — Verification**
-
-   **Resolve co-planner agents:**
-
-   ```bash
-   CO_AGENTS_JSON=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs coplanner agents "verification")
-   ```
-
-   Parse JSON: extract `agents` array and `warnings` array.
-
-   **Skip conditions** (skip to step 7.5):
-   - Agents array is empty (no co-planners configured for verification checkpoint)
-   - Verification status is already `gaps_found` — verifier already found problems, external review is redundant
-   - VERIFICATION.md has `re_verification:` metadata — gap-closure re-check, not initial verification
-
-   **If agents array is non-empty AND status is `passed` or `human_needed` AND initial verification:**
-
-   Display banner:
-   ```
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    GSD ► CO-PLANNER REVIEW
-   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-   ◆ Reviewing verification with {N} co-planner(s)...
-   ```
-
-   Set `CO_PLANNER_RAN_VERIFICATION=true`.
-
-   1. **Read artifact from disk:**
-      ```bash
-      ARTIFACT_CONTENT=$(cat "${PHASE_DIR}"/*-VERIFICATION.md)
-      ROADMAP_CONTEXT=$(cat .planning/ROADMAP.md 2>/dev/null)
-      ```
-
-   2. **Write review prompt to temp file and invoke all agents in parallel:**
-      ```bash
-      PROMPT_FILE=$(mktemp)
-      cat > "$PROMPT_FILE" << 'PROMPT_EOF'
-      Review this verification report for a completed implementation phase. Focus on:
-      1. COVERAGE: Were all must-haves actually verified with evidence?
-      2. BLIND SPOTS: What wasn't checked that should have been?
-      3. FALSE POSITIVES: Could passing checks hide real issues?
-      4. CONCLUSION VALIDITY: Are the conclusions justified by the evidence?
-
-      Organize your response into three sections:
-      - **Suggestions:** Specific improvements or additions you recommend
-      - **Challenges:** Concerns or potential problems you see
-      - **Endorsements:** What looks good and is well-thought-out
-
-      Roadmap context (phase goals):
-      {ROADMAP_CONTEXT}
-
-      Verification report to review:
-      {ARTIFACT_CONTENT}
-      PROMPT_EOF
-      ```
-
-      Replace `{ROADMAP_CONTEXT}` and `{ARTIFACT_CONTENT}` with the actual content read in step 1.
-
-      Invoke all agents in parallel:
-      ```bash
-      RESULTS_JSON=$(node ~/.claude/get-shit-done/bin/gsd-tools.cjs coplanner invoke-all --checkpoint "verification" --prompt-file "$PROMPT_FILE")
-      rm -f "$PROMPT_FILE"
-      ```
-
-   3. **Failure triage:**
-      Parse `RESULTS_JSON`. Extract `results` array: `[{agent, status, response, error, errorType, duration}]`.
-
-      Count successes and failures from results array.
-
-      - **If ALL failed:** Display `⚠ All co-planners failed. Proceeding with adversary review only.` and skip to step 7.5.
-      - **If SOME failed:** Display inline warning at top of output: `⚠ {N} of {M} agents failed ({agent}: {errorType})`
-
-   4. **Display per-agent feedback blocks:**
-
-      For each successful result, map agent CLI name to display name: `codex` -> "Codex", `gemini` -> "Gemini CLI", `opencode` -> "OpenCode". Use title case of the CLI name as fallback.
-
-      Parse the response text into Suggestions, Challenges, and Endorsements sections (Claude's natural language understanding -- not programmatic parsing).
-
-      ```
-      ─── {Display Name} Feedback ───
-
-      **Suggestions:**
-      - {extracted from response}
-
-      **Challenges:**
-      - {extracted from response}
-
-      **Endorsements:**
-      - {extracted from response}
-
-      ──────────────────────────────
-      ```
-
-      If the response has no actionable feedback, note "No actionable feedback" and move on.
-
-   5. **Merged Synthesis:**
-
-      Organize all feedback by theme (e.g., "Verification Coverage", "False Positives", "Evidence Gaps", "Conclusion Validity") rather than by agent. Use bracket-tag attribution inline after each point: `[Codex]`, `[Gemini CLI]`, `[Codex, OpenCode]`.
-
-      For conflicts between agents, highlight explicitly: `Codex suggested X but OpenCode flagged Y -- {resolution with one-line rationale}`.
-
-      Apply acceptance criteria to each themed feedback item:
-
-      - **Accept** if feedback identifies: a missed verification case, a factually incorrect status in the report, a gap between must-haves and evidence, a false-positive verification where the check passed but the behavior is broken, or a conclusion not supported by the evidence cited.
-      - **Reject** if feedback is: stylistic/formatting preference, a scope expansion beyond the phase goal, speculative ("might need") without evidence, or duplicates an existing verification entry.
-      - **Note** if feedback is: valid but deferred to a later phase, or raises a concern already captured in the verification constraints.
-
-      Apply accepted changes to VERIFICATION.md via Edit tool. Set `CO_PLANNER_REVISED_VERIFICATION=true` if any changes were made.
-
-      **Display accept/reject log:**
-
-      ```
-      ### Merged Synthesis
-
-      | # | Theme | Feedback | Source(s) | Decision | Reasoning |
-      |---|-------|----------|-----------|----------|-----------|
-      | 1 | {theme} | {feedback summary} | [{Agent1}] | Accepted | {why} |
-      | 2 | {theme} | {feedback summary} | [{Agent1}, {Agent2}] | Rejected | {why} |
-      | 3 | {theme} | {feedback summary} | [{Agent2}] | Noted | {why} |
-
-      {N} suggestions accepted, {M} rejected, {P} noted
-      ```
-
-   **Conditional commit:**
-   If artifact was revised (`CO_PLANNER_REVISED_VERIFICATION = true`):
-   ```bash
-   git add "${PHASE_DIR}"/*-VERIFICATION.md
-   git commit -m "$(cat <<'EOF'
-   docs({phase}): incorporate co-planner feedback (verification)
-   EOF
-   )"
-   ```
+   Continue to step 7.5 (adversary review). Status routing happens after adversary review.
 
 7.5. **Adversary Review — Verification**
 
@@ -352,18 +218,11 @@ Context files are resolved inside the workflow via `gsd-tools init execute-phase
       - Extract challenges (title, severity, concern, evidence, affected)
       - Extract convergence recommendation (CONTINUE/CONVERGE)
 
-   4. **Orchestrator convergence decision** (adversary informs, orchestrator decides):
+   4. **Check convergence:** If adversary recommends CONVERGE and ROUND > 1:
+      - Set `CONVERGED=true`
+      - Break
 
-      Evaluate challenges by severity to determine loop continuation:
-
-      - **BLOCKING challenges exist** → always continue (re-spawn verifier in step 5)
-      - **MAJOR challenges only** → continue only if challenges target **correctness, completeness, or logic errors**. Exit with `CONVERGED=true` if all MAJOR challenges target methodology, format, or style preferences.
-      - **MINOR challenges only** → set `CONVERGED=true`, break. Note challenges in summary.
-      - **No challenges** → set `CONVERGED=true`, break.
-
-      Also accept adversary CONVERGE recommendation: if adversary recommends CONVERGE and ROUND > 1, set `CONVERGED=true` and break (adversary agreement accelerates exit).
-
-   5. **Handle challenges** (if not CONVERGED and ROUND < EFFECTIVE_MAX_ROUNDS):
+   5. **Handle challenges** (if ROUND < EFFECTIVE_MAX_ROUNDS):
 
       **If BLOCKING challenges exist — Verifier-as-defender pattern:**
 
@@ -406,9 +265,7 @@ Context files are resolved inside the workflow via `gsd-tools init execute-phase
       - Store `PREV_CHALLENGES` = adversary's full challenge output from this round
       - Set `VERIFICATION_REVISED=true`
 
-      **If MAJOR only (no BLOCKING):** The orchestrator already determined in step 4 that these are substantive (not methodology/style). Re-spawn verifier if the concerns are specific enough to re-examine, otherwise build defense text noting the rationale. Store `PREV_CHALLENGES`.
-
-      **If MINOR only:** Should not reach here — step 4 exits the loop. If reached due to edge case, note challenges and break.
+      **If MAJOR/MINOR only (no BLOCKING):** At Claude's discretion, may note without re-spawning verifier. Build defense text noting the rationale. Store `PREV_CHALLENGES`.
 
    6. Increment ROUND
 

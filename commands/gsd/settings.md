@@ -4,7 +4,6 @@ description: Configure GSD workflow toggles and model profile
 allowed-tools:
   - Read
   - Write
-  - Bash
   - AskUserQuestion
 ---
 
@@ -39,9 +38,6 @@ Parse current values (default to `true` if not present):
 - `adversary.enabled` — global adversary toggle (default: `true`)
 - `adversary.checkpoints.*` — per-checkpoint toggles (default: all `true`)
 - `adversary.max_rounds` — global max debate rounds (default: `3`)
-- `co_planners.enabled` — co-planner toggle (default: `false`)
-- `co_planners.agents` — globally configured agents (default: `[]`)
-- `co_planners.checkpoints` — per-checkpoint agent overrides (default: `{}`)
 
 ## 3. Present Settings
 
@@ -128,92 +124,6 @@ AskUserQuestion([
       { label: "3 (Recommended)", description: "Challenge + defense + final assessment" },
       { label: "5", description: "Extended debate (most thorough)" }
     ]
-  },
-
-  // ── Co-Planner Settings ──
-  // ALWAYS show the toggle
-  {
-    question: "Enable external co-planners? (external CLIs review artifacts at checkpoints)",
-    header: "Co-Planners",
-    multiSelect: false,
-    options: [
-      { label: "No (Default)", description: "Workflow runs with Claude only" },
-      { label: "Yes", description: "External CLIs (codex, gemini, opencode) review artifacts" }
-    ]
-  },
-  // ONLY show if co-planners = "Yes":
-  // 1. Show: "Detecting installed CLIs..."
-  // 2. Run: node ~/.claude/get-shit-done/bin/gsd-tools.cjs coplanner detect
-  //    (uses Bash tool — outputs JSON)
-  // 3. Parse JSON result and map each CLI to badge text:
-  //    - available: true                    → "(installed)"
-  //    - available: false, error: NOT_FOUND → "(not installed)"
-  //    - available: false, other error      → "(status unknown)"
-  //    - detection failure/timeout          → "(status unknown)"
-  // 4. Annotate options below with badge text inline:
-  {
-    question: "Which external agents to use as default?",
-    header: "Global Co-Planner Agents",
-    multiSelect: true,
-    options: [
-      { label: "codex (<badge>)", description: "OpenAI Codex CLI" },
-      { label: "gemini (<badge>)", description: "Google Gemini CLI" },
-      { label: "opencode (<badge>)", description: "OpenCode CLI" }
-    ]
-  },
-  // If any selected agent has "(not installed)" or "(status unknown)" badge:
-  // Display note: "Note: Agents marked as not-installed will be skipped until installed."
-  // ONLY show if co-planners = "Yes":
-  {
-    question: "Use different agents at specific checkpoints?",
-    header: "Per-Checkpoint Overrides",
-    multiSelect: false,
-    options: [
-      { label: "No", description: "Same agents at all checkpoints" },
-      { label: "Yes", description: "Configure each checkpoint separately" }
-    ]
-  },
-  // ONLY show if overrides = "Yes" — one question per checkpoint:
-  // Per-checkpoint options reuse cached detection results from step 2 above
-  {
-    question: "Agents for 'requirements' checkpoint?",
-    header: "Requirements Checkpoint",
-    multiSelect: true,
-    options: [
-      { label: "codex (<badge>)", description: "OpenAI Codex CLI" },
-      { label: "gemini (<badge>)", description: "Google Gemini CLI" },
-      { label: "opencode (<badge>)", description: "OpenCode CLI" }
-    ]
-  },
-  {
-    question: "Agents for 'roadmap' checkpoint?",
-    header: "Roadmap Checkpoint",
-    multiSelect: true,
-    options: [
-      { label: "codex (<badge>)", description: "OpenAI Codex CLI" },
-      { label: "gemini (<badge>)", description: "Google Gemini CLI" },
-      { label: "opencode (<badge>)", description: "OpenCode CLI" }
-    ]
-  },
-  {
-    question: "Agents for 'plan' checkpoint?",
-    header: "Plan Checkpoint",
-    multiSelect: true,
-    options: [
-      { label: "codex (<badge>)", description: "OpenAI Codex CLI" },
-      { label: "gemini (<badge>)", description: "Google Gemini CLI" },
-      { label: "opencode (<badge>)", description: "OpenCode CLI" }
-    ]
-  },
-  {
-    question: "Agents for 'verification' checkpoint?",
-    header: "Verification Checkpoint",
-    multiSelect: true,
-    options: [
-      { label: "codex (<badge>)", description: "OpenAI Codex CLI" },
-      { label: "gemini (<badge>)", description: "Google Gemini CLI" },
-      { label: "opencode (<badge>)", description: "OpenCode CLI" }
-    ]
   }
 ])
 ```
@@ -245,15 +155,6 @@ Merge new settings into existing config.json:
       "plan": true/false,
       "verification": true/false
     }
-  },
-  "co_planners": {
-    "enabled": true/false,
-    "timeout_ms": 120000,
-    "agents": ["codex", "gemini"],
-    "checkpoints": {
-      "requirements": { "agents": ["codex"] },
-      "plan": { "agents": ["codex", "gemini"] }
-    }
   }
 }
 ```
@@ -264,13 +165,6 @@ Merge new settings into existing config.json:
 - When toggling checkpoints, write `true` for selected and `false` for unselected
 - When changing max_rounds, write the numeric value (1, 2, 3, or 5)
 - If no existing adversary section, use defaults: `enabled: true`, `max_rounds: 3`, all checkpoints `true`
-
-**Co-Planner merge rules:**
-- Read existing `co_planners` section from config first (preserve `timeout_ms`)
-- When toggling `enabled: false`, preserve existing agents and checkpoints values
-- When setting global agents, write the selected array
-- When setting per-checkpoint overrides, only write checkpoints that differ from global. If same as global, omit (cleaner config).
-- If no overrides selected, write `"checkpoints": {}`
 
 Write updated config to `.planning/config.json`.
 
@@ -293,9 +187,6 @@ Display:
 | Adversary            | {On/Off} |
 | Adversary Checkpoints| {list of enabled checkpoints} |
 | Max Rounds           | {1/2/3/5} |
-| Co-Planners          | {On/Off} |
-| Co-Planner Agents    | {codex, gemini / none} |
-| Checkpoint Overrides | {Yes: list / No} |
 
 These settings apply to future /gsd:plan-phase and /gsd:execute-phase runs.
 
@@ -310,7 +201,7 @@ Quick commands:
 
 <success_criteria>
 - [ ] Current config read
-- [ ] User presented with up to 15 settings (profile + 3 workflow + branching + 3 adversary + up to 7 co-planner)
-- [ ] Config updated with model_profile, workflow, git, adversary, and co_planners sections
+- [ ] User presented with 8 settings (profile + 3 workflow + branching + 3 adversary)
+- [ ] Config updated with model_profile, workflow, git, and adversary sections
 - [ ] Changes confirmed to user
 </success_criteria>
