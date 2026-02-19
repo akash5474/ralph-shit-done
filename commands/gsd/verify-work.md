@@ -30,8 +30,7 @@ Phase: $ARGUMENTS (optional)
 - If not provided: Check for active sessions or prompt for phase
 - If `--auto` flag present: Claude verifies tests programmatically instead of presenting to user
 
-@.planning/STATE.md
-@.planning/ROADMAP.md
+Context files are resolved inside the workflow (`init verify-work`) and delegated via `<files_to_read>` blocks.
 </context>
 
 <process>
