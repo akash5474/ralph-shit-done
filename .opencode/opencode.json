@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "read": {
+      "/Users/akash/programming/projects/agentic-eng/ralph-shit-done/.opencode/get-shit-done/*": "allow"
+    },
+    "external_directory": {
+      "/Users/akash/programming/projects/agentic-eng/ralph-shit-done/.opencode/get-shit-done/*": "allow"
+    }
+  }
+}
