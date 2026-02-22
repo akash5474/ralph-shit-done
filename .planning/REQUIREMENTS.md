@@ -63,13 +63,27 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TBD | TBD | Pending |
+| CONT-01 | Phase 5 | Pending |
+| CONT-02 | Phase 1 | Pending |
+| CONT-03 | Phase 3 | Pending |
+| LOOP-01 | Phase 2 | Pending |
+| LOOP-02 | Phase 2 | Pending |
+| LOOP-03 | Phase 2 | Pending |
+| SAFE-01 | Phase 3 | Pending |
+| SAFE-02 | Phase 3 | Pending |
+| SAFE-03 | Phase 3 | Pending |
+| VERI-01 | Phase 4 | Pending |
+| VERI-02 | Phase 4 | Pending |
+| VERI-03 | Phase 4 | Pending |
+| INTG-01 | Phase 1 | Pending |
+| INTG-02 | Phase 2 | Pending |
+| INTG-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-22*
-*Last updated: 2026-02-22 after initial definition*
+*Last updated: 2026-02-22 after roadmap creation*
